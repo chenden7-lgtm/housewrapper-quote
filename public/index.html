@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>好室多膜 Housewrapper ｜ 頂級汽車貼膜報價系統</title>
+  <meta name="description" content="好室多膜 Housewrapper 專業汽車漆面保護膜 (PPF 犀牛皮)、車身改色膜、頂級隔熱紙快速開立報價單系統。">
+  <link rel="stylesheet" href="/css/style.css">
+  <!-- html2canvas and html2pdf for client-side JPG and PDF export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+
+  <!-- Site Header -->
+  <header class="site-header">
+    <div class="header-container">
+      <div class="brand-wrapper" onclick="app.navigate('home')">
+        <div class="brand-logo-icon">
+          <!-- Housewrapper Emblem SVG -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+            <polyline points="2 17 12 22 22 17"></polyline>
+            <polyline points="2 12 12 17 22 12"></polyline>
+          </svg>
+        </div>
+        <div class="brand-text-group">
+          <span class="brand-title">HOUSEWRAPPER</span>
+          <span class="brand-sub">好室多膜 汽車頂級工藝 報價系統</span>
+        </div>
+      </div>
+
+      <nav class="header-nav">
+        <button class="nav-link active" id="nav-home" onclick="app.navigate('home')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          <span>系統首頁</span>
+        </button>
+        <button class="nav-link" id="nav-new-quote" onclick="app.navigate('new-quote')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+          <span>新增報價單</span>
+        </button>
+        <button class="nav-link" id="nav-history" onclick="app.navigate('history')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          <span>歷史報價單</span>
+        </button>
+        <button class="nav-link" id="nav-admin" onclick="app.navigate('admin')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <span>價格與項目設定</span>
+        </button>
+
+        <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="app.toggleTheme()" title="切換淺色/深色主題">
+          <span id="theme-icon">🌙</span>
+          <span id="theme-text">深色模式</span>
+        </button>
+
+        <div class="user-badge-wrap">
+          <div class="user-pill" id="user-display-pill">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span id="user-name-label">管理員</span>
+          </div>
+          <button class="btn-logout" onclick="app.logout()" title="登出系統">登出</button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content Wrapper -->
+  <main class="main-wrapper">
+
+    <!-- ====================================================================
+         VIEW 1: HOME PORTAL (三大核心入口)
+         ==================================================================== -->
+    <section class="view-section active" id="view-home">
+      <div class="portal-hero">
+        <div class="portal-tagline">Housewrapper Professional Quotation Engine</div>
+        <h1 class="portal-heading">好室多膜 報價作業中樞</h1>
+        <p class="portal-desc">專注於極速開立單據、精準膜料價格試算、保存歷史版本與產出原廠級高質感 PDF 報價單。</p>
+      </div>
+
+      <div class="portal-grid">
+        <!-- Entry 1: 新增報價單 -->
+        <div class="portal-card portal-card-featured" onclick="app.navigate('new-quote')">
+          <div class="portal-icon-box">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+          </div>
+          <h2 class="portal-card-title">新增報價單</h2>
+          <p class="portal-card-desc">選取車型、施工部位與膜料品牌，系統自動帶入精確價格。支援自訂項目、額外折讓計算，一鍵產生專業中文 PDF。</p>
+          <div class="portal-card-cta">
+            <span>立即開單</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </div>
+        </div>
+
+        <!-- Entry 2: 歷史報價單 -->
+        <div class="portal-card" onclick="app.navigate('history')">
+          <div class="portal-icon-box">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+          </div>
+          <h2 class="portal-card-title">歷史報價單</h2>
+          <p class="portal-card-desc">以客戶、電話、車牌或單號秒速調閱。保留當時價格快照不受調價影響，支援原單修訂新版本 (v1/v2) 或複製新開單。</p>
+          <div class="portal-card-cta">
+            <span>瀏覽歷史紀錄</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </div>
+        </div>
+
+        <!-- Entry 3: 價格與項目設定 -->
+        <div class="portal-card" onclick="app.navigate('admin')">
+          <div class="portal-icon-box">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          </div>
+          <h2 class="portal-card-title">價格與項目設定</h2>
+          <p class="portal-card-desc">自主調整犀牛皮、改色膜、隔熱紙預設報價。管理汽車品牌車型級距 (S/M/L/XL)、膜料品牌、門市條款與全庫備份匯出。</p>
+          <div class="portal-card-cta">
+            <span>進入管理後台</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Status Strip -->
+      <div class="quick-status-strip">
+        <div class="strip-item">
+          <div>
+            <div class="strip-val" id="stat-total-quotes">0</div>
+            <div class="strip-label">歷史累積開立單據</div>
+          </div>
+        </div>
+        <div class="strip-item">
+          <div>
+            <div class="strip-val" id="stat-active-materials">0</div>
+            <div class="strip-label">在庫施工膜料規格</div>
+          </div>
+        </div>
+        <div class="strip-item">
+          <div>
+            <div class="strip-val" id="stat-vehicles">0</div>
+            <div class="strip-label">支援車型尺寸庫</div>
+          </div>
+        </div>
+        <div class="strip-item">
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-outline btn-sm" onclick="app.navigate('history')">查看全部單據</button>
+            <button class="btn btn-primary btn-sm" onclick="app.navigate('new-quote')">＋ 新增報價</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VIEW 2: NEW QUOTATION BUILDER (新增報價單)
+         ==================================================================== -->
+    <section class="view-section" id="view-new-quote">
+      <div class="page-header">
+        <div class="page-title-group">
+          <h2 class="page-title" id="form-heading-text">
+            <span>新增施工報價單</span>
+            <span class="badge-tag" id="quote-mode-badge">全新單據</span>
+          </h2>
+          <p class="page-subtitle">填寫客戶與車輛資料，以選單帶入標準價格或手動客製修改。</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-outline btn-sm" onclick="app.resetForm()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.5 2v6h6M21.5 22v-6h-6"/><path d="M22 11.5A10 10 0 0 0 3.2 7.2M2 12.5a10 10 0 0 0 18.8 4.2"/></svg>
+            清空重填
+          </button>
+          <button class="btn btn-secondary btn-sm" onclick="app.previewCurrentQuote()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            預覽 PDF
+          </button>
+        </div>
+      </div>
+
+      <!-- Section 1: 客戶與車輛資料 -->
+      <div class="form-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span>一、客戶與車輛資料</span>
+          </div>
+          <span class="panel-badge">必要資訊</span>
+        </div>
+
+        <div class="grid-cols-4">
+          <div class="form-group">
+            <label class="form-label">客戶姓名 <span class="required">*</span></label>
+            <input type="text" id="quote-cust-name" class="form-input" placeholder="例：林志偉 先生">
+          </div>
+          <div class="form-group">
+            <label class="form-label">聯絡電話 <span class="required">*</span></label>
+            <input type="tel" id="quote-cust-phone" class="form-input" placeholder="例：0912-345-678">
+          </div>
+          <div class="form-group">
+            <label class="form-label">車牌號碼 <span class="required">*</span></label>
+            <input type="text" id="quote-car-plate" class="form-input" placeholder="例：BTQ-8899" style="text-transform: uppercase;">
+          </div>
+          <div class="form-group">
+            <label class="form-label">車型尺寸分類</label>
+            <div class="size-chips-wrap">
+              <div class="size-chip" data-size="S" onclick="app.selectCarSize('S')">S 小型</div>
+              <div class="size-chip active" data-size="M" onclick="app.selectCarSize('M')">M 中型</div>
+              <div class="size-chip" data-size="L" onclick="app.selectCarSize('L')">L 休旅</div>
+              <div class="size-chip" data-size="XL" onclick="app.selectCarSize('XL')">XL 旗艦</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-cols-3" style="margin-top: 14px;">
+          <div class="form-group">
+            <label class="form-label">快速帶入原廠預設車型</label>
+            <select id="quote-vehicle-select" class="form-select" onchange="app.onVehiclePresetChange()">
+              <option value="">-- 請選擇常見車型 (可自動判別尺寸) --</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">汽車廠牌 (手動或自動帶入)</label>
+            <input type="text" id="quote-car-brand" class="form-input" placeholder="例：Tesla 特斯拉 / Porsche 保時捷">
+          </div>
+          <div class="form-group">
+            <label class="form-label">車款與規格 (手動或自動帶入)</label>
+            <input type="text" id="quote-car-model" class="form-input" placeholder="例：Model Y Long Range (珍珠白)">
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: 施工項目清單 -->
+      <div class="form-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+            <span>二、施工項目與膜料規格</span>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-outline btn-sm" onclick="app.openCustomItemModal()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              ＋ 新增自訂項目
+            </button>
+          </div>
+        </div>
+
+        <!-- Smart Dropdown Item Adder -->
+        <div class="item-add-bar">
+          <div class="item-add-grid">
+            <div class="form-group">
+              <label class="form-label">1. 施工類別</label>
+              <select id="adder-category" class="form-select" onchange="app.onAdderCategoryChange()">
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">2. 施工部位</label>
+              <select id="adder-part" class="form-select" onchange="app.onAdderSelectionChange()">
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">3. 材料品牌</label>
+              <select id="adder-brand" class="form-select" onchange="app.onAdderSelectionChange()">
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">4. 膜料系列 <span style="font-weight: 500; font-size: 11px; color: var(--text-muted);">(手動輸入)</span></label>
+              <input type="text" id="adder-series" class="form-input" placeholder="手動輸入系列 / 色號 / 規格">
+            </div>
+            <div class="form-group">
+              <label class="form-label">單價 (NT$)</label>
+              <input type="number" id="adder-price" class="form-input" style="font-family: var(--font-mono); font-weight: 700;" placeholder="0">
+            </div>
+            <div class="form-group">
+              <button class="btn btn-primary" onclick="app.addItemFromAdder()" style="height: 42px;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                加入項目
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Added Items Table -->
+        <div style="overflow-x: auto;">
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th style="width: 50px;">項次</th>
+                <th style="width: 250px;">施工類別與部位</th>
+                <th>膜料品牌與系列規格</th>
+                <th style="width: 140px; text-align: right;">單價 (NT$)</th>
+                <th style="width: 80px; text-align: center;">數量</th>
+                <th style="width: 130px; text-align: right;">小計 (NT$)</th>
+                <th style="width: 220px;">施工備註</th>
+                <th style="width: 60px; text-align: center;">操作</th>
+              </tr>
+            </thead>
+            <tbody id="quote-items-tbody">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+
+        <div id="items-empty-state" class="empty-items-state" style="display: none;">
+          尚未加入任何施工項目，請利用上方選單挑選部位與膜料，或點擊「＋ 新增自訂項目」。
+        </div>
+
+        <!-- Extra Discount Trigger & Panel -->
+        <div class="discount-trigger-box" id="discount-trigger-container">
+          <button class="btn-discount-trigger" onclick="app.toggleDiscountPanel(true)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+            <span>＋ 額外折扣 (固定金額 / 百分比折讓)</span>
+          </button>
+        </div>
+
+        <!-- Active Discount Control Panel -->
+        <div class="discount-active-panel" id="discount-panel" style="display: none;">
+          <div class="discount-header">
+            <div class="discount-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              <span>設定額外折讓方案</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div class="discount-type-tabs">
+                <button type="button" class="discount-tab-btn active" id="btn-discount-fixed" onclick="app.setDiscountType('fixed')">固定金額折讓 (NT$)</button>
+                <button type="button" class="discount-tab-btn" id="btn-discount-pct" onclick="app.setDiscountType('percentage')">百分比折讓 (%)</button>
+              </div>
+              <button class="btn btn-outline btn-sm" onclick="app.removeDiscount()" style="color: #f87171;">取消折扣</button>
+            </div>
+          </div>
+
+          <div class="grid-cols-3">
+            <div class="form-group">
+              <label class="form-label" id="discount-val-label">折讓金額 (NT$)</label>
+              <input type="number" id="discount-value-input" class="form-input" placeholder="例：5000" oninput="app.calculateTotals()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">折扣說明 / 活動備註</label>
+              <input type="text" id="discount-note-input" class="form-input" placeholder="例：新車交車優惠 / 老客戶推薦" oninput="app.calculateTotals()">
+            </div>
+            <div class="form-group" style="justify-content: flex-end;">
+              <div style="display: flex; gap: 6px;">
+                <button type="button" class="btn btn-outline btn-sm" onclick="app.quickDiscount('pct', 5)">95折 (-5%)</button>
+                <button type="button" class="btn btn-outline btn-sm" onclick="app.quickDiscount('pct', 10)">9折 (-10%)</button>
+                <button type="button" class="btn btn-outline btn-sm" onclick="app.quickDiscount('fixed', 3000)">-3,000</button>
+                <button type="button" class="btn btn-outline btn-sm" onclick="app.quickDiscount('fixed', 5000)">-5,000</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Financial Summary -->
+        <div class="quote-summary-panel">
+          <div class="summary-rows">
+            <div class="summary-row">
+              <span>施工項目小計</span>
+              <span class="summary-val" id="summary-subtotal">NT$ 0</span>
+            </div>
+            <div class="summary-row discount-row" id="summary-discount-row" style="display: none;">
+              <span id="summary-discount-text">額外折讓</span>
+              <span class="summary-val" id="summary-discount-amount">- NT$ 0</span>
+            </div>
+          </div>
+          <div class="summary-grand-total">
+            <div class="grand-title">最終報價總計 (含稅/工資)</div>
+            <div class="grand-amount-group">
+              <span class="grand-currency">NT$</span>
+              <span class="grand-amount" id="summary-grand-total">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: 報價備註與效期 -->
+      <div class="form-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            <span>三、單據效期與備註條款</span>
+          </div>
+        </div>
+
+        <div class="grid-cols-2">
+          <div class="form-group">
+            <label class="form-label">報價單有效截止日期</label>
+            <input type="date" id="quote-valid-date" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label">本單特殊備註說明 (會列印於 PDF)</label>
+            <input type="text" id="quote-notes" class="form-input" placeholder="例：預約 11/15 進場施工 3 天，贈送迎賓防踏膜與後照鏡包膜。">
+          </div>
+        </div>
+      </div>
+
+      <!-- Submission Button Bar -->
+      <div style="display: flex; justify-content: flex-end; gap: 14px; margin-top: 10px;">
+        <button class="btn btn-secondary" onclick="app.previewCurrentQuote()" style="padding: 12px 24px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          預覽 PDF 報價單
+        </button>
+        <button class="btn btn-primary" onclick="app.saveCurrentQuote()" id="btn-save-quote" style="padding: 12px 32px; font-size: 15px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+          正式開單並存檔
+        </button>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VIEW 3: QUOTE HISTORY (歷史報價紀錄)
+         ==================================================================== -->
+    <section class="view-section" id="view-history">
+      <div class="page-header">
+        <div class="page-title-group">
+          <h2 class="page-title">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            <span>歷史報價紀錄</span>
+          </h2>
+          <p class="page-subtitle">調閱已開立單據、依客戶/電話/車牌搜尋、重新列印 PDF 或複製開立新單。</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-outline btn-sm" onclick="app.exportHistoryCsv()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            匯出 Excel CSV
+          </button>
+          <button class="btn btn-primary btn-sm" onclick="app.navigate('new-quote')">
+            ＋ 新增報價單
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter Controls -->
+      <div class="history-filter-card">
+        <div class="filter-grid">
+          <div class="form-group">
+            <label class="form-label">搜尋姓名 / 電話 / 車牌 / 單號</label>
+            <input type="text" id="history-search-input" class="form-input" placeholder="輸入關鍵字..." oninput="app.debouncedFetchQuotes()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">開單起始日期</label>
+            <input type="date" id="history-start-date" class="form-input" onchange="app.fetchQuotes()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">開單截止日期</label>
+            <input type="date" id="history-end-date" class="form-input" onchange="app.fetchQuotes()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">單據狀態</label>
+            <select id="history-status-select" class="form-select" onchange="app.fetchQuotes()">
+              <option value="all">全部狀態</option>
+              <option value="issued">已開立 (Issued)</option>
+              <option value="accepted">已成交 (Accepted)</option>
+              <option value="completed">已完工 (Completed)</option>
+              <option value="cancelled">已作廢 (Cancelled)</option>
+            </select>
+          </div>
+          <div class="form-group" style="justify-content: flex-end;">
+            <button class="btn btn-secondary btn-sm" onclick="app.clearHistoryFilters()">重設條件</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- History Table -->
+      <div class="history-table-card">
+        <div style="overflow-x: auto;">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>報價單號</th>
+                <th>開單日期</th>
+                <th>客戶姓名</th>
+                <th>聯絡電話</th>
+                <th>車牌號碼</th>
+                <th>車型與尺寸</th>
+                <th>施工項目摘要</th>
+                <th style="text-align: right;">報價總額 (NT$)</th>
+                <th>狀態</th>
+                <th style="text-align: center;">操作</th>
+              </tr>
+            </thead>
+            <tbody id="history-tbody">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+        <div id="history-empty" class="empty-items-state" style="display: none;">
+          查無符合條件的報價單據。
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VIEW 4: ADMIN SETTINGS (價格與項目設定)
+         ==================================================================== -->
+    <section class="view-section" id="view-admin">
+      <div class="page-header">
+        <div class="page-title-group">
+          <h2 class="page-title">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span>價格與項目設定</span>
+          </h2>
+          <p class="page-subtitle">管理施工項目、材料品牌、車型尺寸分類、預設報價矩陣及門市資訊與備份。</p>
+        </div>
+      </div>
+
+      <!-- Admin Tabs -->
+      <div class="admin-tab-nav">
+        <button class="admin-tab-btn active" onclick="app.switchAdminTab('parts')">1. 施工部位與項目</button>
+        <button class="admin-tab-btn" onclick="app.switchAdminTab('materials')">2. 膜料品牌與系列</button>
+        <button class="admin-tab-btn" onclick="app.switchAdminTab('matrix')">3. 預設價格矩陣</button>
+        <button class="admin-tab-btn" onclick="app.switchAdminTab('vehicles')">4. 車型與尺寸庫</button>
+        <button class="admin-tab-btn" onclick="app.switchAdminTab('store')">5. 門市資訊與條款</button>
+        <button class="admin-tab-btn" onclick="app.switchAdminTab('backup')">6. 資料庫備份與還原</button>
+      </div>
+
+      <!-- Tab 1: 施工部位與項目 -->
+      <div class="admin-sub-view active" id="admin-tab-parts">
+        <div class="form-panel">
+          <div class="panel-header">
+            <div class="panel-title">新增施工部位</div>
+          </div>
+          <div class="grid-cols-4">
+            <div class="form-group">
+              <label class="form-label">所屬施工類別</label>
+              <select id="new-part-cat" class="form-select"></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">施工部位名稱</label>
+              <input type="text" id="new-part-name" class="form-input" placeholder="例：側裙防護 (左右一對)">
+            </div>
+            <div class="form-group">
+              <label class="form-label">說明描述</label>
+              <input type="text" id="new-part-desc" class="form-input" placeholder="例：防上下車踢碰或輪胎甩石">
+            </div>
+            <div class="form-group" style="justify-content: flex-end;">
+              <button class="btn btn-primary" onclick="app.createPart()">＋ 新增部位</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-panel">
+          <div class="panel-header">
+            <div class="panel-title">在庫施工部位清單</div>
+          </div>
+          <div style="overflow-x: auto;">
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th>類別</th>
+                  <th>部位名稱</th>
+                  <th>說明</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="admin-parts-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: 膜料品牌與系列 -->
+      <div class="admin-sub-view" id="admin-tab-materials">
+        <div class="form-panel">
+          <div class="panel-header">
+            <div class="panel-title">新增材料品牌與系列</div>
+          </div>
+          <div class="grid-cols-4">
+            <div class="form-group">
+              <label class="form-label">膜料施工類別</label>
+              <select id="new-mat-cat" class="form-select"></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">品牌名稱</label>
+              <input type="text" id="new-mat-brand" class="form-input" placeholder="例：XPEL / 3M / STEK">
+            </div>
+            <div class="form-group">
+              <label class="form-label">系列與特性名稱</label>
+              <input type="text" id="new-mat-series" class="form-input" placeholder="例：LUX PLUS 亮面自體修復">
+            </div>
+            <div class="form-group">
+              <label class="form-label">原廠保固年限 (年)</label>
+              <input type="number" id="new-mat-warranty" class="form-input" value="10">
+            </div>
+          </div>
+          <div style="display: flex; justify-content: flex-end; margin-top: 14px;">
+            <button class="btn btn-primary" onclick="app.createMaterial()">＋ 新增膜料規格</button>
+          </div>
+        </div>
+
+        <div class="form-panel">
+          <div class="panel-header">
+            <div class="panel-title">膜料品牌系列清單</div>
+          </div>
+          <div style="overflow-x: auto;">
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th>類別</th>
+                  <th>品牌</th>
+                  <th>系列名稱</th>
+                  <th>保固年限</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="admin-materials-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: 預設價格矩陣 -->
+      <div class="admin-sub-view" id="admin-tab-matrix">
+        <div class="form-panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">車型尺寸與部位預設價格矩陣 (NT$)</div>
+              <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">開立報價單時選定車型與部位將自動帶入此處金額，開單當下仍可自由手動修改。</p>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="app.savePriceMatrix()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path></svg>
+              儲存全部價格修改
+            </button>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="price-matrix-table">
+              <thead>
+                <tr>
+                  <th style="width: 220px;">施工部位</th>
+                  <th style="width: 260px;">材料品牌與系列</th>
+                  <th>S 小型車 (NT$)</th>
+                  <th>M 中型車 (NT$)</th>
+                  <th>L 大型休旅 (NT$)</th>
+                  <th>XL 旗艦/7座 (NT$)</th>
+                </tr>
+              </thead>
+              <tbody id="admin-matrix-tbody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 4: 車型與尺寸庫 -->
+      <div class="admin-sub-view" id="admin-tab-vehicles">
+        <div class="form-panel">
+          <div class="panel-header">
+            <div class="panel-title">新增車型分類</div>
+          </div>
+          <div class="grid-cols-4">
+            <div class="form-group">
+              <label class="form-label">汽車廠牌</label>
+              <input type="text" id="new-veh-brand" class="form-input" placeholder="例：Tesla 特斯拉">
+            </div>
+            <div class="form-group">
+              <label class="form-label">車款名稱</label>
+              <input type="text" id="new-veh-model" class="form-input" placeholder="例：Model Y">
+            </div>
+            <div class="form-group">
+              <label class="form-label">尺寸級距</label>
+              <select id="new-veh-size" class="form-select">
+                <option value="S">S - 小型車 / 掀背</option>
+                <option value="M" selected>M - 中型房車 / 跑車</option>
+                <option value="L">L - 大型房車 / SUV 休旅</option>
+                <option value="XL">XL - 大型旗艦 / 7人座 / 廂型車</option>
+              </select>
+            </div>
+            <div class="form-group" style="justify-content: flex-end;">
+              <button class="btn btn-primary" onclick="app.createVehicle()">＋ 新增車型</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-panel">
+          <div class="panel-header">
+            <div class="panel-title">在庫車型尺寸資料庫</div>
+          </div>
+          <div style="overflow-x: auto;">
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th>廠牌</th>
+                  <th>車型</th>
+                  <th>尺寸分類</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="admin-vehicles-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 5: 門市資訊與條款 -->
+      <div class="admin-sub-view" id="admin-tab-store">
+        <div class="form-panel">
+          <div class="panel-header">
+            <div class="panel-title">門市抬頭與 PDF 報價單資訊</div>
+          </div>
+          <div class="grid-cols-2">
+            <div class="form-group">
+              <label class="form-label">品牌公司抬頭</label>
+              <input type="text" id="setting-company-name" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">門市代表號 / 專線電話</label>
+              <input type="text" id="setting-company-phone" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">門市地址</label>
+              <input type="text" id="setting-company-address" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">官方 LINE ID</label>
+              <input type="text" id="setting-company-line" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">統一編號</label>
+              <input type="text" id="setting-company-tax-id" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">報價單預設有效天數</label>
+              <input type="number" id="setting-valid-days" class="form-input" value="15">
+            </div>
+          </div>
+          <div class="form-group" style="margin-top: 16px;">
+            <label class="form-label">報價單條款與施工注意事項 (會列印於 PDF 底端)</label>
+            <textarea id="setting-quote-terms" class="form-textarea" rows="6"></textarea>
+          </div>
+          <div style="display: flex; justify-content: flex-end; margin-top: 18px;">
+            <button class="btn btn-primary" onclick="app.saveSettings()">儲存門市設定</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 6: 資料庫備份與還原 -->
+      <div class="admin-sub-view" id="admin-tab-backup">
+        <div class="form-panel">
+          <div class="panel-header">
+            <div class="panel-title">全庫資料備份與還原機制</div>
+          </div>
+          <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 20px;">
+            為確保歷史單據與價格設定長期保存，系統支援隨時下載完整 JSON 備份檔，或由備份檔還原資料庫。
+          </p>
+
+          <div class="grid-cols-2" style="gap: 20px;">
+            <div style="background: var(--bg-input); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+              <h3 style="font-size: 15px; margin-bottom: 8px;">一鍵匯出完整備份檔 (JSON)</h3>
+              <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">包含所有歷史單據、價格規則、施工部位、材料與車型資料。</p>
+              <button class="btn btn-primary btn-sm" onclick="app.exportJsonBackup()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                下載完整備份 (JSON)
+              </button>
+            </div>
+
+            <div style="background: var(--bg-input); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+              <h3 style="font-size: 15px; margin-bottom: 8px;">自備份檔匯入還原</h3>
+              <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">選取先前下載的 JSON 檔案，還原歷史資料。</p>
+              <input type="file" id="backup-file-input" accept=".json" style="font-size: 12px; margin-bottom: 12px; display: block; color: var(--text-secondary);">
+              <button class="btn btn-secondary btn-sm" onclick="app.importJsonBackup()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                執行資料還原
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ====================================================================
+       MODAL 1: PDF QUOTATION PREVIEW & PRINT
+       ==================================================================== -->
+  <div class="modal-backdrop" id="pdf-modal">
+    <div class="modal-box" style="max-width: 900px;">
+      <div class="modal-header no-print">
+        <div class="modal-title">
+          <span>報價單正式預覽</span>
+          <span class="badge-tag" id="pdf-modal-status-badge">已開立</span>
+        </div>
+        <button class="btn-icon" onclick="app.closePdfModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Renderable Traditional Chinese Quotation Sheet -->
+        <div class="pdf-sheet-wrapper" id="pdf-render-target">
+          <!-- Sheet Header -->
+          <div class="pdf-header">
+            <div class="pdf-brand-col">
+              <div class="pdf-logo-mark">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                  <polyline points="2 17 12 22 22 17"></polyline>
+                  <polyline points="2 12 12 17 22 12"></polyline>
+                </svg>
+              </div>
+              <div class="pdf-brand-text">
+                <h1 id="pdf-store-name">好室多膜 HOUSEWRAPPER</h1>
+                <p>PREMIUM AUTOMOTIVE STYLING & PAINT PROTECTION FILM</p>
+                <div style="font-size: 11px; color: #4b5563; margin-top: 4px;">
+                  <span id="pdf-store-address">台北市內湖區行愛路111號</span> ｜ 
+                  電話：<span id="pdf-store-phone">02-2794-0710</span> ｜ 
+                  LINE：<span id="pdf-store-line">@housewrapper</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="pdf-quote-meta">
+              <div class="pdf-quote-title">汽車施工報價單</div>
+              <div class="pdf-quote-number" id="pdf-quote-no">HW-20261024-001</div>
+              <div class="pdf-date-text">開立日期：<span id="pdf-created-date">2026/10/24</span></div>
+              <div class="pdf-date-text">有效期限：<span id="pdf-valid-date">2026/11/08</span></div>
+            </div>
+          </div>
+
+          <!-- Customer & Vehicle Info Cards -->
+          <div class="pdf-info-grid">
+            <div class="pdf-info-box">
+              <div class="pdf-info-title">客戶資料 Client Info</div>
+              <div class="pdf-info-row">
+                <span class="pdf-info-label">客戶姓名：</span>
+                <span class="pdf-info-value" id="pdf-client-name">林先生</span>
+              </div>
+              <div class="pdf-info-row">
+                <span class="pdf-info-label">聯絡電話：</span>
+                <span class="pdf-info-value" id="pdf-client-phone">0912-345-678</span>
+              </div>
+              <div class="pdf-info-row">
+                <span class="pdf-info-label">服務門市：</span>
+                <span class="pdf-info-value">好室多膜 台北旗艦店</span>
+              </div>
+            </div>
+
+            <div class="pdf-info-box">
+              <div class="pdf-info-title">車輛資料 Vehicle Info</div>
+              <div class="pdf-info-row">
+                <span class="pdf-info-label">車牌號碼：</span>
+                <span class="pdf-info-value" id="pdf-car-plate">BTQ-8899</span>
+              </div>
+              <div class="pdf-info-row">
+                <span class="pdf-info-label">汽車廠牌：</span>
+                <span class="pdf-info-value" id="pdf-car-brand">Tesla 特斯拉</span>
+              </div>
+              <div class="pdf-info-row">
+                <span class="pdf-info-label">車款尺寸：</span>
+                <span class="pdf-info-value" id="pdf-car-model-size">Model Y (L 級距)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Itemized Table -->
+          <table class="pdf-table">
+            <thead>
+              <tr>
+                <th style="width: 40px;" class="text-center">#</th>
+                <th style="width: 200px;">施工部位與項目</th>
+                <th>材料品牌規格 / 保固年限</th>
+                <th style="width: 95px;" class="text-right">單價</th>
+                <th style="width: 50px;" class="text-center">數量</th>
+                <th style="width: 105px;" class="text-right">金額 (NT$)</th>
+              </tr>
+            </thead>
+            <tbody id="pdf-items-tbody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+
+          <!-- Financial Calculation Breakdown -->
+          <div class="pdf-summary-wrap">
+            <table class="pdf-summary-table">
+              <tr>
+                <td class="summary-label">施工項目小計：</td>
+                <td class="summary-val" id="pdf-subtotal-val">NT$ 145,000</td>
+              </tr>
+              <tr id="pdf-discount-row">
+                <td class="summary-label">額外折讓優惠 (<span id="pdf-discount-label">折抵</span>)：</td>
+                <td class="summary-val" style="color: #dc2626;" id="pdf-discount-val">- NT$ 5,000</td>
+              </tr>
+              <tr class="grand-row">
+                <td class="summary-label" style="font-weight: 800;">最終報價總計：</td>
+                <td class="summary-val" id="pdf-grand-val">NT$ 140,000</td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- Notes & Terms -->
+          <div class="pdf-terms-box">
+            <div class="pdf-terms-title">施工備註與保固條款：</div>
+            <div class="pdf-terms-content" id="pdf-terms-content">
+              1. 本報價單自開立日起有效，逾期將重新評估施作檔期與材料售價。
+              2. 施作前經雙方查驗確認原漆狀態，全車享有原廠膜料品質保固。
+              3. 施作需保留 2~4 個工作天，預付 30% 訂金保留預約施工檔期。
+            </div>
+          </div>
+
+          <!-- Signatures -->
+          <div class="pdf-signatures">
+            <div class="signature-line">
+              <span>經辦技術主管 / 業務代表：</span>
+              <span id="pdf-rep-name">店長 Kevin</span>
+            </div>
+            <div class="signature-line">
+              <span>客戶確認簽章：</span>
+              <span>日期：____年____月____日</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer no-print">
+        <button class="btn btn-outline" onclick="app.copyQuoteText()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          複製文字 (LINE)
+        </button>
+        <button class="btn btn-secondary" onclick="app.downloadPdf()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          下載 PDF
+        </button>
+        <button class="btn btn-secondary" onclick="window.print()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+          列印
+        </button>
+        <button class="btn btn-primary" onclick="app.downloadJpg()" style="background: #111827; color: #fff; font-weight: 700; border-color: #000; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+          🖼️ 下載 JPG 圖片（傳 LINE 首選）
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODAL 2: CUSTOM AD-HOC ITEM ADDER
+       ==================================================================== -->
+  <div class="modal-backdrop" id="custom-item-modal">
+    <div class="modal-box" style="max-width: 500px;">
+      <div class="modal-header">
+        <div class="modal-title">新增自訂施工項目</div>
+        <button class="btn-icon" onclick="app.closeCustomItemModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label class="form-label">施工名稱 / 部位 <span class="required">*</span></label>
+          <input type="text" id="custom-name" class="form-input" placeholder="例：客製消光黑拉線 / 碳纖維尾翼包膜">
+        </div>
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label class="form-label">材料規格 / 說明</label>
+          <input type="text" id="custom-mat" class="form-input" placeholder="例：3M 2080 鑄造級消光黑 (3年保固)">
+        </div>
+        <div class="grid-cols-2" style="margin-bottom: 14px;">
+          <div class="form-group">
+            <label class="form-label">單價 (NT$) <span class="required">*</span></label>
+            <input type="number" id="custom-price" class="form-input" placeholder="例：6000">
+          </div>
+          <div class="form-group">
+            <label class="form-label">數量</label>
+            <input type="number" id="custom-qty" class="form-input" value="1" min="1">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">備註說明</label>
+          <input type="text" id="custom-note" class="form-input" placeholder="例：手工精緻收邊">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="app.closeCustomItemModal()">取消</button>
+        <button class="btn btn-primary" onclick="app.addCustomItem()">加入報價單</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODAL 3: LOGIN MODAL (安全防護)
+       ==================================================================== -->
+  <div class="modal-backdrop" id="login-modal">
+    <div class="modal-box" style="max-width: 420px;">
+      <div class="modal-header">
+        <div class="modal-title">好室多膜 系統登入</div>
+      </div>
+      <div class="modal-body">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <div class="brand-logo-icon" style="margin: 0 auto 12px auto; width: 48px; height: 48px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28" height="28">
+              <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+              <polyline points="2 17 12 22 22 17"></polyline>
+              <polyline points="2 12 12 17 22 12"></polyline>
+            </svg>
+          </div>
+          <div style="font-weight: 700; font-size: 16px;">門市報價身分驗證</div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">保護客戶個資與報價商業隱私</p>
+        </div>
+
+        <form onsubmit="app.handleLoginSubmit(event)">
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label class="form-label">管理員帳號</label>
+            <input type="text" id="login-username" class="form-input" value="admin" required autocomplete="username">
+          </div>
+          <div class="form-group" style="margin-bottom: 20px;">
+            <label class="form-label">登入密碼</label>
+            <input type="password" id="login-password" class="form-input" value="housewrapper888" required autocomplete="current-password">
+          </div>
+          <div id="login-error-msg" style="color: #f87171; font-size: 13px; margin-bottom: 14px; display: none;"></div>
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">登入報價系統</button>
+        </form>
+        <div style="font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 14px;">
+          預設帳號：<code>admin</code> ｜ 預設密碼：<code>housewrapper888</code>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" style="position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px;"></div>
+
+  <!-- Main Application Logic Script -->
+  <script src="/js/app.js"></script>
+</body>
+</html>
