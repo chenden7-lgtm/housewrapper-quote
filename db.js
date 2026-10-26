@@ -239,79 +239,76 @@ function initDatabase() {
   // Seed default pricing rules
   const priceCheck = db.prepare("SELECT count(*) as count FROM price_rules").get();
   if (priceCheck.count === 0) {
-    const allParts = db.prepare("SELECT id, name, category_id FROM parts").all();
-    const allMaterials = db.prepare("SELECT id, brand, series, category_id FROM materials").all();
+    const allParts = db.prepare("SELECT id, name FROM parts").all();
+    const allMaterials = db.prepare("SELECT id, brand FROM materials").all();
+    const { carPricingData, carPackagePrices } = require('./public/js/pricingData.js');
 
     const insertPrice = db.prepare(`
       INSERT OR REPLACE INTO price_rules (part_id, material_id, size_class, price)
       VALUES (?, ?, ?, ?)
     `);
 
-    // Helper to batch set sizes
-    function setRates(partKeyword, matKeyword, sPrice, mPrice, lPrice, xlPrice) {
-      const p = allParts.find(x => x.name.includes(partKeyword));
-      const m = allMaterials.find(x => (x.brand + ' ' + x.series).includes(matKeyword));
-      if (p && m) {
-        insertPrice.run(p.id, m.id, 'S', sPrice);
-        insertPrice.run(p.id, m.id, 'M', mPrice);
-        insertPrice.run(p.id, m.id, 'L', lPrice);
-        insertPrice.run(p.id, m.id, 'XL', xlPrice);
+    const partMap = {
+      '前保桿': '前保桿',
+      '引擎蓋': '引擎蓋',
+      '左前葉': '前葉子版',
+      '右前葉': '前葉子版',
+      '左前門': '前門',
+      '右前門': '前門',
+      '左後門': '後門',
+      '右後門': '後門',
+      '左後葉': '後葉',
+      '右後葉': '後葉',
+      '左AC': 'AC(不含後葉)',
+      '右AC': 'AC(不含後葉)',
+      '尾箱上': '尾箱上',
+      '尾箱中段': '尾箱下',
+      '尾箱上（左）': '尾箱上左右（單邊）',
+      '尾箱上（右）': '尾箱上左右（單邊）',
+      '尾箱下': '尾箱下',
+      '後保桿': '後保桿',
+      '左後保桿': '後保桿（單邊）',
+      '右後保桿': '後保桿（單邊）'
+    };
+
+    const sizes = ['S', 'M', 'L', 'XL', '2XL'];
+
+    for (const p of allParts) {
+      for (const m of allMaterials) {
+        let matKey = 'axColor';
+        if (m.brand === '3M') matKey = 'threeMColor';
+        else if (m.brand === 'STEK' || m.brand === 'SUNTEK') matKey = 'importGloss';
+
+        for (const size of sizes) {
+          let price = 0;
+          if (p.name === '全車') {
+            if (m.brand === 'AX') price = carPackagePrices.axE[size] || 65000;
+            else if (m.brand === '3M') price = carPackagePrices.threeMGMS[size] || 75000;
+            else if (m.brand === 'STEK' || m.brand === 'SUNTEK') {
+              const stekMap = { S: 120000, M: 130000, L: 145000, XL: 160000, '2XL': 175000 };
+              price = stekMap[size] || 130000;
+            } else {
+              price = 70000;
+            }
+          } else {
+            const refKey = partMap[p.name] || p.name;
+            const tbl = carPricingData.others[matKey];
+            if (tbl && tbl[refKey] && tbl[refKey][size]) {
+              price = tbl[refKey][size];
+            } else if (tbl && tbl[refKey] && tbl[refKey]['M']) {
+              price = tbl[refKey]['M'];
+            } else if (refKey === '後保桿（單邊）' && tbl && tbl['後保桿']) {
+              price = Math.round(tbl['後保桿'][size] / 2);
+            } else if (refKey === '尾箱上左右（單邊）' && tbl && tbl['尾箱上']) {
+              price = Math.round(tbl['尾箱上'][size] / 2);
+            } else {
+              price = 8000;
+            }
+          }
+          insertPrice.run(p.id, m.id, size, price);
+        }
       }
     }
-
-    // PPF 全車
-    setRates('全車包膜', 'XPEL LUX', 120000, 130000, 145000, 160000);
-    setRates('全車包膜', 'XPEL STEALTH', 130000, 140000, 155000, 170000);
-    setRates('全車包膜', 'STEK DYNOshield', 115000, 125000, 138000, 155000);
-    setRates('全車包膜', 'STEK DYNOmatte', 125000, 135000, 148000, 165000);
-    setRates('全車包膜', '3M Scotchgard', 105000, 115000, 128000, 142000);
-
-    // PPF 車頭迎風面
-    setRates('車頭迎風面', 'XPEL LUX', 38000, 42000, 46000, 52000);
-    setRates('車頭迎風面', 'STEK DYNOshield', 36000, 40000, 44000, 50000);
-    setRates('車頭迎風面', '3M Scotchgard', 34000, 38000, 42000, 48000);
-
-    // 引擎蓋
-    setRates('引擎蓋', 'XPEL LUX', 13000, 15000, 17000, 19000);
-    setRates('引擎蓋', 'STEK DYNOshield', 12000, 14000, 16000, 18000);
-
-    // 前保險桿
-    setRates('前保險桿', 'XPEL LUX', 15000, 16500, 18000, 20000);
-    setRates('前保險桿', 'STEK DYNOshield', 14000, 15500, 17000, 19000);
-
-    // 大燈/尾燈
-    setRates('大燈', 'STEK DYNOshield', 4500, 5000, 5500, 6000);
-    setRates('大燈', 'XPEL LUX', 5000, 5500, 6000, 6500);
-
-    // 門碗邊緣
-    setRates('開門防碰', 'XPEL LUX', 2500, 2500, 2800, 3000);
-
-    // 改色 Wrap 全車
-    setRates('全車改色包膜', '3M 2080', 68000, 75000, 85000, 98000);
-    setRates('全車改色包膜', 'Avery', 66000, 72000, 82000, 95000);
-    setRates('全車改色包膜', 'TeckWrap', 58000, 65000, 75000, 88000);
-
-    // 懸浮雙色車頂
-    setRates('懸浮雙色車頂', '3M 2080', 9500, 11000, 13000, 15000);
-    setRates('懸浮雙色車頂', 'Avery', 9000, 10500, 12500, 14500);
-
-    // 鍍鉻黑化
-    setRates('全車鍍鉻黑化', '3M 2080', 12000, 14000, 16000, 18000);
-
-    // 隔熱紙
-    setRates('全車頂級隔熱紙 (含前擋與天窗)', 'LX 鑽石', 38000, 42000, 46000, 52000);
-    setRates('全車頂級隔熱紙 (含前擋與天窗)', 'Ti 奈米陶瓷', 26000, 29000, 33000, 37000);
-    setRates('全車頂級隔熱紙 (含前擋與天窗)', 'V-KOOL', 35000, 39000, 43000, 49000);
-
-    setRates('全車頂級隔熱紙 (不含天窗)', 'LX 鑽石', 32000, 35000, 39000, 44000);
-    setRates('全車頂級隔熱紙 (不含天窗)', 'Ti 奈米陶瓷', 22000, 25000, 28000, 32000);
-
-    setRates('前擋風玻璃隔熱紙', 'LX 鑽石', 14000, 15000, 16000, 18000);
-    setRates('前擋風玻璃隔熱紙', 'Ti 奈米陶瓷', 9000, 10000, 11000, 12000);
-
-    // 內裝防護
-    setRates('全車室內裝螢幕＋中控鋼琴烤漆飾板', 'XPEL', 11000, 12500, 14000, 16000);
-    setRates('中控主螢幕鋼琴保護貼', '鋼化玻璃', 2500, 2500, 2800, 3000);
   }
 
   // Seed 2 realistic sample quotes to make history page immediately demonstrable

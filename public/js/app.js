@@ -362,33 +362,145 @@ const app = {
     this.updateAdderPrice();
   },
 
+  lookupReferencePrice(part, cat, brand, series, size, carBrand, carModel) {
+    const pData = window.carPricingData;
+    if (!pData) return 0;
+
+    const brandStr = (carBrand || '').toLowerCase();
+    const modelStr = (carModel || '').toLowerCase();
+    const isTesla = brandStr.includes('tesla') || brandStr.includes('特斯拉') || modelStr.includes('model');
+
+    // 1. Determine material key
+    let matKey = 'axColor';
+    const isMatte = (series || '').includes('消光') || (series || '').includes('啞光') || (series || '').includes('霧面');
+
+    if (cat === '改色膜') {
+      matKey = (brand === '3M') ? 'threeMColor' : 'axColor';
+    } else if (cat === '犀牛皮') {
+      if (brand === 'AX' || brand === '國產') {
+        matKey = isMatte ? 'chinaMatte' : 'chinaGloss';
+      } else {
+        // 3M, STEK, SUNTEK or other import PPF
+        matKey = isMatte ? 'importMatte' : 'importGloss';
+      }
+    } else if (cat === '隔熱紙') {
+      if (part === '全車') {
+        const tintMap = { 'S': 22000, 'M': 25000, 'L': 28000, 'XL': 32000, '2XL': 35000 };
+        return tintMap[size] || 25000;
+      }
+      if (part.includes('前') || part.includes('擋')) return 8000;
+      if (part.includes('後') || part.includes('側') || part.includes('門')) return 4000;
+      return 6000;
+    }
+
+    // 2. Full car package price handling from reference packagePrices
+    if (part === '全車') {
+      const pkg = window.carPackagePrices;
+      if (cat === '改色膜') {
+        if (brand === '3M') {
+          const mKey = (series || '').includes('HG') ? 'threeMHG' : ((series || '').includes('GP') || (series || '').includes('SP') ? 'threeMGP' : 'threeMGMS');
+          if (pkg && pkg[mKey] && pkg[mKey][size]) return pkg[mKey][size];
+          return size === 'S' ? 70000 : (size === 'L' ? 80000 : (size === 'XL' ? 85000 : (size === '2XL' ? 90000 : 75000)));
+        } else {
+          // AX color
+          const aKey = (series || '').includes('T') ? 'axT' : ((series || '').includes('G') ? 'axG' : ((series || '').includes('V') ? 'axV' : 'axE'));
+          if (pkg && pkg[aKey] && pkg[aKey][size]) return pkg[aKey][size];
+          return size === 'S' ? 60000 : (size === 'L' ? 70000 : (size === 'XL' ? 75000 : (size === '2XL' ? 80000 : 65000)));
+        }
+      } else if (cat === '犀牛皮') {
+        if (brand === 'AX' || brand === '國產') {
+          const ppfChina = { 'S': 90000, 'M': 98000, 'L': 108000, 'XL': 118000, '2XL': 128000 };
+          return ppfChina[size] || 98000;
+        } else {
+          const ppfImport = { 'S': 120000, 'M': 130000, 'L': 145000, 'XL': 160000, '2XL': 175000 };
+          return ppfImport[size] || 130000;
+        }
+      }
+    }
+
+    // 3. Mapping of 22 parts to reference database part names
+    const partMap = {
+      '前保桿': '前保桿',
+      '引擎蓋': '引擎蓋',
+      '左前葉': '前葉子版',
+      '右前葉': '前葉子版',
+      '左前門': '前門',
+      '右前門': '前門',
+      '左後門': '後門',
+      '右後門': '後門',
+      '左後葉': '後葉',
+      '右後葉': '後葉',
+      '左AC': isTesla ? 'AC' : 'AC(不含後葉)',
+      '右AC': isTesla ? 'AC' : 'AC(不含後葉)',
+      '尾箱上': '尾箱上',
+      '尾箱中段': '尾箱下',
+      '尾箱上（左）': '尾箱上左右（單邊）',
+      '尾箱上（右）': '尾箱上左右（單邊）',
+      '尾箱下': '尾箱下',
+      '後保桿': '後保桿',
+      '左後保桿': '後保桿（單邊）',
+      '右後保桿': '後保桿（單邊）'
+    };
+
+    const mappedKey = partMap[part] || part;
+    const table = isTesla ? pData.tesla[matKey] : pData.others[matKey];
+
+    // Determine model or size key
+    let sizeKey = size || 'M';
+    if (isTesla) {
+      if (modelStr.includes('新款') || modelStr.includes('new')) {
+        sizeKey = '新款Model Y';
+      } else if (modelStr.includes('3')) {
+        sizeKey = 'Model 3';
+      } else if (modelStr.includes('y')) {
+        sizeKey = 'Model Y';
+      } else if (modelStr.includes('s')) {
+        sizeKey = 'Model S';
+      } else if (modelStr.includes('x')) {
+        sizeKey = 'Model X';
+      } else {
+        sizeKey = 'Model Y'; // Tesla standard
+      }
+    }
+
+    if (table && table[mappedKey] && table[mappedKey][sizeKey]) {
+      return table[mappedKey][sizeKey];
+    }
+
+    // Fallback if not found directly
+    if (table && table[mappedKey]) {
+      const vals = Object.values(table[mappedKey]);
+      if (vals.length > 0) return vals[0];
+    }
+
+    // Single side calculation fallback for non-Tesla
+    if (!isTesla && pData.others && pData.others[matKey]) {
+      if (mappedKey === '後保桿（單邊）' && pData.others[matKey]['後保桿']) {
+        return Math.round(pData.others[matKey]['後保桿'][sizeKey || 'M'] / 2);
+      }
+      if (mappedKey === '尾箱上左右（單邊）' && pData.others[matKey]['尾箱上']) {
+        return Math.round(pData.others[matKey]['尾箱上'][sizeKey || 'M'] / 2);
+      }
+    }
+
+    return 0;
+  },
+
   updateAdderPrice() {
     const part = document.getElementById('adder-part')?.value;
     const cat = document.getElementById('adder-category')?.value;
+    const brand = document.getElementById('adder-brand')?.value;
+    const series = document.getElementById('adder-series')?.value || '';
+    const carBrand = document.getElementById('quote-car-brand')?.value || '';
+    const carModel = document.getElementById('quote-car-model')?.value || '';
     const size = this.currentQuote.car_size || 'M';
     const priceInput = document.getElementById('adder-price');
 
     if (!priceInput) return;
 
-    // Smart default price lookup if available, or suggest sensible benchmark
-    if (part === '全車') {
-      const priceMap = {
-        'S': cat === '犀牛皮' ? 120000 : (cat === '改色膜' ? 68000 : 32000),
-        'M': cat === '犀牛皮' ? 130000 : (cat === '改色膜' ? 75000 : 35000),
-        'L': cat === '犀牛皮' ? 145000 : (cat === '改色膜' ? 85000 : 39000),
-        'XL': cat === '犀牛皮' ? 160000 : (cat === '改色膜' ? 98000 : 44000)
-      };
-      priceInput.value = priceMap[size] || 130000;
-    } else if (part === '引擎蓋') {
-      priceInput.value = cat === '犀牛皮' ? 15000 : 9000;
-    } else if (part === '前保桿' || part === '後保桿') {
-      priceInput.value = cat === '犀牛皮' ? 16500 : 10000;
-    } else if (part.includes('門')) {
-      priceInput.value = cat === '犀牛皮' ? 8000 : 5000;
-    } else if (part.includes('葉')) {
-      priceInput.value = cat === '犀牛皮' ? 8500 : 5500;
-    } else if (part.includes('尾箱')) {
-      priceInput.value = cat === '犀牛皮' ? 7500 : 4500;
+    const refPrice = this.lookupReferencePrice(part, cat, brand, series, size, carBrand, carModel);
+    if (refPrice > 0) {
+      priceInput.value = refPrice;
     } else {
       if (!priceInput.value) {
         priceInput.placeholder = '請手動輸入';
