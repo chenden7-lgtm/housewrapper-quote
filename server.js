@@ -759,6 +759,6 @@ app.listen(PORT, () => {
   console.log(`====================================================`);
   console.log(` Housewrapper 好室多膜 報價單系統已啟動`);
   console.log(` 服務網址: http://localhost:${PORT}`);
-  console.log(` 預設登入: 帳號 admin / 密碼 housewrapper888`);
+  console.log(` 門市人員身分驗證已啟用`);
   console.log(`====================================================`);
 });

@@ -988,19 +988,16 @@
 
         <form onsubmit="app.handleLoginSubmit(event)">
           <div class="form-group" style="margin-bottom: 14px;">
-            <label class="form-label">管理員帳號</label>
-            <input type="text" id="login-username" class="form-input" value="admin" required autocomplete="username">
+            <label class="form-label">門市帳號</label>
+            <input type="text" id="login-username" class="form-input" placeholder="請輸入帳號" required autocomplete="username">
           </div>
           <div class="form-group" style="margin-bottom: 20px;">
             <label class="form-label">登入密碼</label>
-            <input type="password" id="login-password" class="form-input" value="housewrapper888" required autocomplete="current-password">
+            <input type="password" id="login-password" class="form-input" placeholder="請輸入密碼" required autocomplete="current-password">
           </div>
           <div id="login-error-msg" style="color: #f87171; font-size: 13px; margin-bottom: 14px; display: none;"></div>
           <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">登入報價系統</button>
         </form>
-        <div style="font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 14px;">
-          預設帳號：<code>admin</code> ｜ 預設密碼：<code>housewrapper888</code>
-        </div>
       </div>
     </div>
   </div>

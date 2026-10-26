@@ -109,13 +109,26 @@ function initDatabase() {
     CREATE INDEX IF NOT EXISTS idx_quotes_created_at ON quotes(created_at);
   `);
 
-  // Seed default admin if empty
-  const userCheck = db.prepare("SELECT count(*) as count FROM users").get();
-  if (userCheck.count === 0) {
-    db.prepare(`
-      INSERT INTO users (username, password, display_name, role)
-      VALUES (?, ?, ?, ?)
-    `).run('admin', 'housewrapper888', '好室多膜 門市總管', 'admin');
+  // Seed users and synchronize accounts
+  const initialUsers = [
+    { username: 'chenden7', password: 'q120591', display_name: 'chenden7', role: 'admin' },
+    { username: 'chenden8', password: '00000000', display_name: 'chenden8', role: 'admin' },
+    { username: 'in', password: '00000000', display_name: 'in', role: 'admin' },
+    { username: 'admin', password: 'housewrapper888', display_name: '好室多膜 門市總管', role: 'admin' }
+  ];
+
+  for (const u of initialUsers) {
+    const existing = db.prepare("SELECT id FROM users WHERE username = ?").get(u.username);
+    if (!existing) {
+      db.prepare(`
+        INSERT INTO users (username, password, display_name, role)
+        VALUES (?, ?, ?, ?)
+      `).run(u.username, u.password, u.display_name, u.role);
+    } else {
+      db.prepare(`
+        UPDATE users SET password = ?, display_name = ?, role = ? WHERE username = ?
+      `).run(u.password, u.display_name, u.role, u.username);
+    }
   }
 
   // Seed default settings
