@@ -377,13 +377,17 @@
           </div>
         </div>
 
-        <div class="grid-cols-2">
+        <div class="grid-cols-3">
           <div class="form-group">
-            <label class="form-label">報價單有效截止日期</label>
+            <label class="form-label">報價開立日期 <span class="required">*</span></label>
+            <input type="date" id="quote-created-date" class="form-input" onchange="app.onCreatedDateChange()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">報價有效截止日期</label>
             <input type="date" id="quote-valid-date" class="form-input">
           </div>
           <div class="form-group">
-            <label class="form-label">本單特殊備註說明 (會列印於 PDF)</label>
+            <label class="form-label">本單特殊備註說明 (會列印於單據)</label>
             <input type="text" id="quote-notes" class="form-input" placeholder="例：預約 11/15 進場施工 3 天，贈送迎賓防踏膜與後照鏡包膜。">
           </div>
         </div>

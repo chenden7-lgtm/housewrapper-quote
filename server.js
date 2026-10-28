@@ -281,8 +281,14 @@ app.post('/api/catalog/prices', authenticate, (req, res) => {
 // --------------------------------------------------------------------------
 
 // Helper to generate unique quote number: HW-YYYYMMDD-XXX
-function generateQuoteNumber() {
-  const now = new Date();
+function generateQuoteNumber(customDate) {
+  let now = new Date();
+  if (customDate) {
+    const parsed = new Date(customDate.length === 10 ? customDate + 'T12:00:00' : customDate);
+    if (!isNaN(parsed.getTime())) {
+      now = parsed;
+    }
+  }
   const yyyy = now.getFullYear();
   const mm = String(now.getMonth() + 1).padStart(2, '0');
   const dd = String(now.getDate()).padStart(2, '0');
@@ -405,6 +411,7 @@ app.post('/api/quotes', authenticate, (req, res) => {
     discount_amount,
     discount_note,
     total_price,
+    created_at,
     valid_date,
     notes,
     status
@@ -418,14 +425,15 @@ app.post('/api/quotes', authenticate, (req, res) => {
     return res.status(400).json({ success: false, message: '報價單必須包含至少一項施工項目' });
   }
 
-  const quote_number = generateQuoteNumber();
+  const quote_number = generateQuoteNumber(created_at);
+  const issueDateStr = created_at ? (created_at.slice(0, 10) + ' ' + new Date().toTimeString().slice(0, 8)) : new Date().toISOString();
 
   const insert = db.prepare(`
     INSERT INTO quotes (
       quote_number, version, parent_quote_id, customer_name, customer_phone, car_plate,
       car_brand, car_model, car_size, items_json, subtotal, discount_type, discount_value,
-      discount_amount, discount_note, total_price, valid_date, notes, status, created_by
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      discount_amount, discount_note, total_price, valid_date, notes, status, created_by, created_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   const result = insert.run(
@@ -448,7 +456,8 @@ app.post('/api/quotes', authenticate, (req, res) => {
     valid_date || new Date().toISOString().slice(0, 10),
     notes || '',
     status || 'issued',
-    req.user.displayName || '好室多膜'
+    req.user.displayName || '好室多膜',
+    issueDateStr
   );
 
   const newQuote = db.prepare('SELECT * FROM quotes WHERE id = ?').get(result.lastInsertRowid);
@@ -482,6 +491,7 @@ app.post('/api/quotes/:id/version', authenticate, (req, res) => {
     discount_amount,
     discount_note,
     total_price,
+    created_at,
     valid_date,
     notes,
     status
@@ -496,13 +506,14 @@ app.post('/api/quotes/:id/version', authenticate, (req, res) => {
 
   const nextVersion = (existingVersions?.max_version || original.version || 1) + 1;
   const newQuoteNumber = `${baseNumber}-v${nextVersion}`;
+  const issueDateStr = created_at ? (created_at.slice(0, 10) + ' ' + new Date().toTimeString().slice(0, 8)) : (original.created_at || new Date().toISOString());
 
   const insert = db.prepare(`
     INSERT INTO quotes (
       quote_number, version, parent_quote_id, customer_name, customer_phone, car_plate,
       car_brand, car_model, car_size, items_json, subtotal, discount_type, discount_value,
-      discount_amount, discount_note, total_price, valid_date, notes, status, created_by
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      discount_amount, discount_note, total_price, valid_date, notes, status, created_by, created_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   const result = insert.run(
@@ -525,7 +536,8 @@ app.post('/api/quotes/:id/version', authenticate, (req, res) => {
     valid_date || original.valid_date,
     notes !== undefined ? notes : original.notes,
     status || 'issued',
-    req.user.displayName || '好室多膜'
+    req.user.displayName || '好室多膜',
+    issueDateStr
   );
 
   const newQuote = db.prepare('SELECT * FROM quotes WHERE id = ?').get(result.lastInsertRowid);

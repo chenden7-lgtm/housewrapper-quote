@@ -86,14 +86,51 @@ const app = {
 
   initDefaultDates() {
     const today = new Date();
+    const todayStr = this.formatLocalDate(today);
+
+    const validDays = Number(this.catalog?.settings?.quote_valid_days) || 15;
     const validUntil = new Date();
-    validUntil.setDate(today.getDate() + 15);
+    validUntil.setDate(today.getDate() + validDays);
+    const validUntilStr = this.formatLocalDate(validUntil);
+
+    const createdDateInput = document.getElementById('quote-created-date');
+    if (createdDateInput) {
+      createdDateInput.value = todayStr;
+      this.currentQuote.created_at = todayStr;
+    }
 
     const validDateInput = document.getElementById('quote-valid-date');
     if (validDateInput) {
-      validDateInput.value = validUntil.toISOString().slice(0, 10);
-      this.currentQuote.valid_date = validDateInput.value;
+      validDateInput.value = validUntilStr;
+      this.currentQuote.valid_date = validUntilStr;
     }
+  },
+
+  onCreatedDateChange() {
+    const createdDateInput = document.getElementById('quote-created-date');
+    if (!createdDateInput || !createdDateInput.value) return;
+
+    this.currentQuote.created_at = createdDateInput.value;
+
+    // Recalculate valid until date automatically based on store setting
+    const validDays = Number(this.catalog?.settings?.quote_valid_days) || 15;
+    const baseDate = new Date(createdDateInput.value + 'T12:00:00');
+    if (!isNaN(baseDate.getTime())) {
+      baseDate.setDate(baseDate.getDate() + validDays);
+      const validUntilStr = this.formatLocalDate(baseDate);
+      const validDateInput = document.getElementById('quote-valid-date');
+      if (validDateInput) {
+        validDateInput.value = validUntilStr;
+        this.currentQuote.valid_date = validUntilStr;
+      }
+    }
+  },
+
+  formatLocalDate(d) {
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
   },
 
   // ------------------------------------------------------------------------
@@ -808,6 +845,7 @@ const app = {
     this.currentQuote.car_plate = document.getElementById('quote-car-plate').value.trim().toUpperCase();
     this.currentQuote.car_brand = document.getElementById('quote-car-brand').value.trim();
     this.currentQuote.car_model = document.getElementById('quote-car-model').value.trim();
+    this.currentQuote.created_at = document.getElementById('quote-created-date')?.value || this.formatLocalDate(new Date());
     this.currentQuote.valid_date = document.getElementById('quote-valid-date').value;
     this.currentQuote.notes = document.getElementById('quote-notes').value.trim();
   },
@@ -935,7 +973,7 @@ const app = {
     const tempQuote = {
       ...this.currentQuote,
       quote_number: this.currentQuote.quote_number || 'HW-預覽暫存單',
-      created_at: new Date().toISOString()
+      created_at: this.currentQuote.created_at ? (this.currentQuote.created_at + 'T12:00:00') : new Date().toISOString()
     };
     this.openPdfModal(tempQuote);
   },
@@ -1387,6 +1425,7 @@ const app = {
       discount_note: q.discount_note,
       total_price: q.total_price,
       valid_date: q.valid_date,
+      created_at: q.created_at,
       notes: q.notes,
       status: 'issued'
     };
@@ -1406,6 +1445,9 @@ const app = {
     document.getElementById('quote-car-brand').value = q.car_brand || '';
     document.getElementById('quote-car-model').value = q.car_model || '';
     document.getElementById('quote-notes').value = q.notes || '';
+    if (q.created_at) {
+      document.getElementById('quote-created-date').value = q.created_at.slice(0, 10);
+    }
     if (q.valid_date) document.getElementById('quote-valid-date').value = q.valid_date;
 
     this.selectCarSize(q.car_size || 'M');
