@@ -2519,6 +2519,10 @@ const app = {
     if (dateEl && !dateEl.value) {
       dateEl.value = new Date().toISOString().split('T')[0];
     }
+    const amtEl = document.getElementById('d-deposit-amount');
+    if (amtEl && (!amtEl.value || amtEl.value === '20000')) {
+      amtEl.value = 10000;
+    }
     this.onDepositPaymentChange();
     this.updateDepositLivePreview();
     this.loadDepositRecordsCount();
@@ -2724,7 +2728,7 @@ const app = {
     setVal('d-customer-phone', '0912-345-678');
     setVal('d-car-plate', 'EBK-1505');
     setVal('d-car-model', 'Tesla Model Y');
-    setVal('d-deposit-amount', 20000);
+    setVal('d-deposit-amount', 10000);
     setVal('d-service-item', '全車消光透明犀牛皮包膜 (PPF) + 車頂全景隔熱紙');
     setVal('d-receipt-date', new Date().toISOString().split('T')[0]);
     setVal('d-created-by', '好室多膜 台北旗艦店');
@@ -2755,6 +2759,9 @@ const app = {
 
     const dateEl = document.getElementById('d-receipt-date');
     if (dateEl) dateEl.value = new Date().toISOString().split('T')[0];
+
+    const amtEl = document.getElementById('d-deposit-amount');
+    if (amtEl) amtEl.value = 10000;
 
     const termsEl = document.getElementById('d-terms-text');
     if (termsEl) {
