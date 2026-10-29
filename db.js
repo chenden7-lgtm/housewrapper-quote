@@ -107,6 +107,51 @@ function initDatabase() {
     CREATE INDEX IF NOT EXISTS idx_quotes_phone ON quotes(customer_phone);
     CREATE INDEX IF NOT EXISTS idx_quotes_plate ON quotes(car_plate);
     CREATE INDEX IF NOT EXISTS idx_quotes_created_at ON quotes(created_at);
+
+    -- Warranty Records table
+    CREATE TABLE IF NOT EXISTS warranty_records (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      record_no TEXT UNIQUE NOT NULL,
+      quote_id INTEGER DEFAULT NULL,
+      customer_name TEXT NOT NULL,
+      customer_phone TEXT NOT NULL,
+      car_model TEXT NOT NULL,
+      completion_date TEXT NOT NULL,
+      license_plate TEXT NOT NULL,
+      original_color TEXT NOT NULL,
+      service_brand TEXT NOT NULL,
+      service_model TEXT NOT NULL,
+      notes TEXT DEFAULT '',
+      template_version TEXT NOT NULL DEFAULT 'v1.0',
+      created_by TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_by TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_records_plate ON warranty_records(license_plate);
+    CREATE INDEX IF NOT EXISTS idx_records_name ON warranty_records(customer_name);
+    CREATE INDEX IF NOT EXISTS idx_records_phone ON warranty_records(customer_phone);
+    CREATE INDEX IF NOT EXISTS idx_records_date ON warranty_records(completion_date);
+
+    -- Warranty Audit Logs (Modification & Reprint history)
+    CREATE TABLE IF NOT EXISTS record_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      record_id INTEGER NOT NULL,
+      action TEXT NOT NULL, -- 'CREATE', 'UPDATE', 'REPRINT'
+      changed_by TEXT NOT NULL,
+      changed_at TEXT NOT NULL,
+      changes_json TEXT DEFAULT '{}',
+      FOREIGN KEY (record_id) REFERENCES warranty_records(id) ON DELETE CASCADE
+    );
+
+    -- Warranty Preset Options (Brands & Models)
+    CREATE TABLE IF NOT EXISTS preset_options (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      type TEXT NOT NULL, -- 'brand' | 'model'
+      name TEXT NOT NULL,
+      sort_order INTEGER NOT NULL DEFAULT 0
+    );
   `);
 
   // Seed users and synchronize accounts
@@ -393,10 +438,72 @@ function initDatabase() {
     );
   }
 
+    // Initial seed: default preset options for warranty cards
+    const optionCount = db.prepare('SELECT COUNT(*) as count FROM preset_options').get().count;
+    if (optionCount === 0) {
+      const insertOption = db.prepare('INSERT INTO preset_options (type, name, sort_order) VALUES (?, ?, ?)');
+      const brands = ['AX Film', 'SunTek', 'XPEL', 'STEK', '3M', 'Inozetek', 'TeckWrap', 'KDX'];
+      brands.forEach((brand, idx) => insertOption.run('brand', brand, idx));
+
+      const models = [
+        'TPU 透明高光亮面膜',
+        'TPU 緞面啞光防護膜',
+        '高光超亮黑頂膜',
+        '超啞灰藍',
+        '極致高光白',
+        '啞面黑',
+        '星空黑',
+        '冰川藍',
+        '水泥灰'
+      ];
+      models.forEach((model, idx) => insertOption.run('model', model, idx));
+    }
+
+    // Initial seed: sample warranty record
+    const warrantyCount = db.prepare('SELECT COUNT(*) as count FROM warranty_records').get().count;
+    if (warrantyCount === 0) {
+      const insertRecord = db.prepare(`
+        INSERT INTO warranty_records (
+          record_no, quote_id, customer_name, customer_phone, car_model, completion_date,
+          license_plate, original_color, service_brand, service_model, notes,
+          template_version, created_by, created_at, updated_by, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      const now = new Date().toISOString();
+      insertRecord.run(
+        'HW-W-20251119-0001',
+        null,
+        '郭書豪',
+        '0900000000',
+        'Tesla Model Y',
+        '2025/11/19',
+        'EBK-1505',
+        '白',
+        'AX',
+        '超啞灰藍',
+        '首發範例保固卡',
+        'v1.0',
+        '好室多膜 門市總管',
+        now,
+        '好室多膜 門市總管',
+        now
+      );
+    }
+
   console.log("Database initialized and verified successfully at " + DB_PATH);
+}
+
+// Generate new unique warranty record number
+function generateRecordNo() {
+  const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const prefix = `HW-W-${dateStr}`;
+  const row = db.prepare("SELECT COUNT(*) as count FROM warranty_records WHERE record_no LIKE ?").get(`${prefix}%`);
+  const seq = (row.count + 1).toString().padStart(4, '0');
+  return `${prefix}-${seq}`;
 }
 
 module.exports = {
   db,
-  initDatabase
+  initDatabase,
+  generateRecordNo
 };

@@ -268,6 +268,8 @@ const app = {
     } else if (viewName === 'new-quote') {
       this.populateVehicleSelect();
       this.populateAdderDropdowns();
+    } else if (viewName === 'warranty') {
+      this.initWarrantyView();
     }
   },
 
@@ -1911,6 +1913,600 @@ const app = {
       toast.style.transform = 'translateY(10px)';
       setTimeout(() => toast.remove(), 300);
     }, 3200);
+  },
+
+  // ------------------------------------------------------------------------
+  // Warranty Card System Integration
+  // ------------------------------------------------------------------------
+  warrantyPresets: { brands: [], models: [] },
+  editingWarrantyId: null,
+  warrantySearchTimer: null,
+
+  initWarrantyView() {
+    this.initWarrantyDates();
+    this.loadWarrantyPresets();
+    this.loadWarrantyRecords();
+    this.updateWarrantyLivePreview();
+  },
+
+  initWarrantyDates() {
+    const today = new Date().toISOString().slice(0, 10);
+    const dateInput = document.getElementById('w-completion-date');
+    if (dateInput && !dateInput.value) {
+      dateInput.value = today;
+    }
+  },
+
+  switchWarrantyTab(tabName) {
+    document.querySelectorAll('.warranty-subtab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.warranty-subview').forEach(v => v.classList.remove('active'));
+
+    const tabBtn = document.getElementById(`wtab-btn-${tabName}`);
+    const subview = document.getElementById(`wsub-${tabName}`);
+    if (tabBtn) tabBtn.classList.add('active');
+    if (subview) subview.classList.add('active');
+
+    if (tabName === 'history') {
+      this.loadWarrantyRecords();
+    } else if (tabName === 'presets') {
+      this.loadWarrantyPresets();
+    }
+  },
+
+  async loadWarrantyPresets() {
+    const res = await this.api('/api/warranty/presets');
+    if (res && res.success) {
+      this.warrantyPresets = res;
+      this.renderWarrantyPresetPills();
+      this.renderWarrantyPresetAdmin();
+    }
+  },
+
+  renderWarrantyPresetPills() {
+    const brandContainer = document.getElementById('w-brand-pills');
+    const modelContainer = document.getElementById('w-model-pills');
+
+    if (brandContainer) {
+      brandContainer.innerHTML = (this.warrantyPresets.brands || []).map(b => `
+        <span class="w-pill" onclick="app.setWarrantyField('w-service-brand', '${this.escapeHtml(b.name)}')">${this.escapeHtml(b.name)}</span>
+      `).join('');
+    }
+
+    if (modelContainer) {
+      modelContainer.innerHTML = (this.warrantyPresets.models || []).map(m => `
+        <span class="w-pill" onclick="app.setWarrantyField('w-service-model', '${this.escapeHtml(m.name)}')">${this.escapeHtml(m.name)}</span>
+      `).join('');
+    }
+  },
+
+  renderWarrantyPresetAdmin() {
+    const brandList = document.getElementById('w-preset-brands-list');
+    const modelList = document.getElementById('w-preset-models-list');
+
+    if (brandList) {
+      brandList.innerHTML = (this.warrantyPresets.brands || []).map(b => `
+        <li class="w-preset-item">
+          <span>${this.escapeHtml(b.name)}</span>
+          <button type="button" class="btn-del-w-preset" onclick="app.deleteWarrantyPreset(${b.id}, '${this.escapeHtml(b.name)}')">✕</button>
+        </li>
+      `).join('') || '<li style="color: var(--text-muted); font-size: 13px;">尚無品牌選項</li>';
+    }
+
+    if (modelList) {
+      modelList.innerHTML = (this.warrantyPresets.models || []).map(m => `
+        <li class="w-preset-item">
+          <span>${this.escapeHtml(m.name)}</span>
+          <button type="button" class="btn-del-w-preset" onclick="app.deleteWarrantyPreset(${m.id}, '${this.escapeHtml(m.name)}')">✕</button>
+        </li>
+      `).join('') || '<li style="color: var(--text-muted); font-size: 13px;">尚無型號選項</li>';
+    }
+  },
+
+  async addWarrantyPreset(type) {
+    const inputId = type === 'brand' ? 'w-new-brand-input' : 'w-new-model-input';
+    const input = document.getElementById(inputId);
+    const name = input ? input.value.trim() : '';
+    if (!name) return;
+
+    const res = await this.api('/api/warranty/presets', {
+      method: 'POST',
+      body: { type, name }
+    });
+
+    if (res && res.success) {
+      input.value = '';
+      this.showToast(`已新增常用選項：${name}`, 'success');
+      await this.loadWarrantyPresets();
+    } else {
+      this.showToast(res?.message || '新增失敗', 'error');
+    }
+  },
+
+  async deleteWarrantyPreset(id, name) {
+    if (!confirm(`確定要刪除「${name}」常用選項嗎？`)) return;
+    const res = await this.api(`/api/warranty/presets/${id}`, { method: 'DELETE' });
+    if (res && res.success) {
+      this.showToast(`已刪除選項：${name}`);
+      await this.loadWarrantyPresets();
+    }
+  },
+
+  setWarrantyField(fieldId, val) {
+    const el = document.getElementById(fieldId);
+    if (el) {
+      el.value = val;
+      this.updateWarrantyLivePreview();
+      el.focus();
+    }
+  },
+
+  getWarrantyFormData() {
+    return {
+      quote_id: document.getElementById('w-linked-quote-id')?.value || null,
+      customer_name: (document.getElementById('w-customer-name')?.value || '').trim(),
+      customer_phone: (document.getElementById('w-customer-phone')?.value || '').trim(),
+      car_model: (document.getElementById('w-car-model')?.value || '').trim(),
+      completion_date: (document.getElementById('w-completion-date')?.value || '').trim(),
+      license_plate: (document.getElementById('w-license-plate')?.value || '').toUpperCase().trim(),
+      original_color: (document.getElementById('w-original-color')?.value || '').trim(),
+      service_brand: (document.getElementById('w-service-brand')?.value || '').trim(),
+      service_model: (document.getElementById('w-service-model')?.value || '').trim(),
+      notes: (document.getElementById('w-notes')?.value || '').trim()
+    };
+  },
+
+  updateWarrantyLivePreview() {
+    const data = this.getWarrantyFormData();
+    const formattedDate = (data.completion_date || '').replace(/-/g, '/');
+
+    const setText = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = val || '';
+    };
+
+    setText('w-render-customer-name', data.customer_name);
+    setText('w-render-license-plate', data.license_plate);
+    setText('w-render-customer-phone', data.customer_phone);
+    setText('w-render-original-color', data.original_color);
+    setText('w-render-car-model', data.car_model);
+    setText('w-render-service-brand', data.service_brand);
+    setText('w-render-completion-date', formattedDate);
+    setText('w-render-service-model', data.service_model);
+  },
+
+  fillWarrantyDemoData() {
+    const setVal = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.value = val;
+    };
+    setVal('w-customer-name', '郭書豪');
+    setVal('w-license-plate', 'EBK-1505');
+    setVal('w-customer-phone', '0900000000');
+    setVal('w-original-color', '白');
+    setVal('w-car-model', 'Tesla Model Y');
+    setVal('w-completion-date', '2025-11-19');
+    setVal('w-service-brand', 'AX Film');
+    setVal('w-service-model', '超啞灰藍');
+    setVal('w-notes', '全車消光保護膜＋迎風面防護');
+    this.updateWarrantyLivePreview();
+    this.showToast('已帶入保固卡示範資料');
+  },
+
+  resetWarrantyForm() {
+    this.editingWarrantyId = null;
+    document.getElementById('w-editing-record-id').value = '';
+    document.getElementById('w-linked-quote-id').value = '';
+    document.getElementById('w-form-mode-title').textContent = '填寫車主與施工資訊';
+    document.getElementById('w-btn-save-text').textContent = '儲存保固卡紀錄';
+    document.getElementById('w-cancel-edit-box').style.display = 'none';
+
+    const fields = [
+      'w-customer-name', 'w-license-plate', 'w-customer-phone',
+      'w-original-color', 'w-car-model', 'w-service-brand',
+      'w-service-model', 'w-notes'
+    ];
+    fields.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+
+    this.initWarrantyDates();
+    this.updateWarrantyLivePreview();
+  },
+
+  async saveWarrantyRecord() {
+    const data = this.getWarrantyFormData();
+    if (!data.customer_name) {
+      alert('請填寫車主姓名');
+      document.getElementById('w-customer-name')?.focus();
+      return;
+    }
+    if (!data.license_plate) {
+      alert('請填寫車主車牌');
+      document.getElementById('w-license-plate')?.focus();
+      return;
+    }
+
+    const saveBtn = document.getElementById('w-btn-save-record');
+    const oldText = saveBtn.innerHTML;
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<span>⏳ 儲存中...</span>';
+
+    try {
+      let res;
+      if (this.editingWarrantyId) {
+        res = await this.api(`/api/warranty/records/${this.editingWarrantyId}`, {
+          method: 'PUT',
+          body: data
+        });
+      } else {
+        res = await this.api('/api/warranty/records', {
+          method: 'POST',
+          body: data
+        });
+      }
+
+      if (res && res.success) {
+        this.showToast(this.editingWarrantyId ? '保固卡資料已更新！' : `保固卡建立成功！編號：${res.record.record_no}`, 'success');
+        this.loadWarrantyRecords();
+      } else {
+        this.showToast(res?.message || '儲存失敗', 'error');
+      }
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = oldText;
+    }
+  },
+
+  async downloadWarrantyFormPDF() {
+    const data = this.getWarrantyFormData();
+    if (!data.customer_name || !data.license_plate) {
+      if (!confirm('車主姓名或車牌尚未填寫，確定要直接下載未填完的保固卡嗎？')) return;
+    }
+
+    try {
+      this.showToast('正在產生高解析向量 PDF...');
+      const res = await fetch('/api/warranty/pdf/download-form', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.token}`
+        },
+        body: JSON.stringify(data)
+      });
+
+      if (!res.ok) throw new Error('下載 PDF 失敗');
+      const blob = await res.blob();
+      const name = data.customer_name || '車主';
+      const plate = (data.license_plate || '車牌').toUpperCase();
+      const date = (data.completion_date || '').replace(/\//g, '-');
+      const filename = `保固卡_${name}_${plate}_${date}.pdf`;
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      URL.revokeObjectURL(url);
+      a.remove();
+      this.showToast('保固卡向量 PDF 下載完成！', 'success');
+    } catch (err) {
+      this.showToast(err.message || '下載失敗', 'error');
+    }
+  },
+
+  async printWarrantyCard() {
+    const data = this.getWarrantyFormData();
+    try {
+      this.showToast('正在開啟列印視窗...');
+      const res = await fetch('/api/warranty/pdf/preview', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.token}`
+        },
+        body: JSON.stringify(data)
+      });
+      if (!res.ok) throw new Error('產生列印檔失敗');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const printWindow = window.open(url, '_blank');
+      if (printWindow) {
+        printWindow.focus();
+      }
+    } catch (err) {
+      this.showToast(err.message || '開啟列印失敗', 'error');
+    }
+  },
+
+  async openWarrantyFullPdf() {
+    const data = this.getWarrantyFormData();
+    try {
+      this.showToast('正在產生全尺寸 PDF 預覽...');
+      const res = await fetch('/api/warranty/pdf/preview', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.token}`
+        },
+        body: JSON.stringify(data)
+      });
+      if (!res.ok) throw new Error('預覽失敗');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    } catch (err) {
+      this.showToast(err.message || '預覽失敗', 'error');
+    }
+  },
+
+  onWarrantySearchInput() {
+    const input = document.getElementById('w-search-input');
+    const clearBtn = document.getElementById('w-clear-search-btn');
+    if (clearBtn) clearBtn.style.display = input.value ? 'block' : 'none';
+
+    clearTimeout(this.warrantySearchTimer);
+    this.warrantySearchTimer = setTimeout(() => {
+      this.loadWarrantyRecords(input.value);
+    }, 250);
+  },
+
+  clearWarrantySearch() {
+    const input = document.getElementById('w-search-input');
+    const clearBtn = document.getElementById('w-clear-search-btn');
+    if (input) input.value = '';
+    if (clearBtn) clearBtn.style.display = 'none';
+    this.loadWarrantyRecords();
+  },
+
+  async loadWarrantyRecords(query = '') {
+    const tbody = document.getElementById('w-records-tbody');
+    const countBadge = document.getElementById('w-badge-record-count');
+    if (!tbody) return;
+
+    const endpoint = query ? `/api/warranty/records?q=${encodeURIComponent(query)}` : '/api/warranty/records';
+    const res = await this.api(endpoint);
+
+    if (!res || !res.success) {
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: #ef4444; padding: 30px;">載入保固卡失敗</td></tr>`;
+      return;
+    }
+
+    if (countBadge) countBadge.textContent = res.count;
+
+    if (!res.records || res.records.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 40px;">
+            ${query ? `找不到與「${this.escapeHtml(query)}」相關的保固卡紀錄` : '目前尚無保固卡紀錄，點選上方「新增保固卡」開始開立'}
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = res.records.map(r => `
+      <tr>
+        <td><code style="font-size: 11px;">${this.escapeHtml(r.record_no)}</code></td>
+        <td><span class="w-plate-badge">${this.escapeHtml(r.license_plate)}</span></td>
+        <td><strong>${this.escapeHtml(r.customer_name)}</strong></td>
+        <td>${this.escapeHtml(r.customer_phone || '-')}</td>
+        <td>${this.escapeHtml(r.car_model || '-')}</td>
+        <td>
+          <span style="font-size: 12px; font-weight: 600;">${this.escapeHtml(r.service_brand || '-')}</span>
+          <div style="font-size: 11px; color: var(--text-muted);">${this.escapeHtml(r.service_model || '-')}</div>
+        </td>
+        <td>${this.escapeHtml((r.completion_date || '').replace(/-/g, '/'))}</td>
+        <td><span style="font-size: 11px; color: var(--text-muted);">${this.escapeHtml(r.created_by)}</span></td>
+        <td>
+          <div style="display: flex; gap: 4px; justify-content: center;">
+            <button type="button" class="btn btn-sm w-reprint-btn" title="一鍵重印原始保固卡 PDF" onclick="app.reprintWarrantyRecord(${r.id}, '${this.escapeHtml(r.customer_name)}', '${this.escapeHtml(r.license_plate)}', '${this.escapeHtml(r.completion_date)}')">
+              🖨️ 重印
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" title="編輯修改資料" onclick="app.editWarrantyRecord(${r.id})">
+              ✏️ 編輯
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" title="查看修改紀錄與履歷" onclick="app.viewWarrantyAudit(${r.id})">
+              🕒 履歷
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" style="color: #ef4444;" title="刪除" onclick="app.deleteWarrantyRecord(${r.id}, '${this.escapeHtml(r.record_no)}')">
+              🗑️
+            </button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  },
+
+  async reprintWarrantyRecord(id, name, plate, date) {
+    try {
+      this.showToast(`正在產生【${plate}】保固卡 PDF...`);
+      const res = await fetch(`/api/warranty/pdf/download/${id}`, {
+        headers: { 'Authorization': `Bearer ${this.token}` }
+      });
+      if (!res.ok) throw new Error('下載保固卡失敗');
+      const blob = await res.blob();
+      const filename = `保固卡_${name}_${plate}_${(date || '').replace(/\//g, '-')}.pdf`;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      URL.revokeObjectURL(url);
+      a.remove();
+      this.showToast(`已成功下載並重印【${plate}】保固卡！`, 'success');
+      this.loadWarrantyRecords(document.getElementById('w-search-input')?.value || '');
+    } catch (err) {
+      this.showToast(err.message || '重印失敗', 'error');
+    }
+  },
+
+  async editWarrantyRecord(id) {
+    const res = await this.api(`/api/warranty/records/${id}`);
+    if (!res || !res.success) {
+      this.showToast('讀取保固卡失敗', 'error');
+      return;
+    }
+
+    const r = res.record;
+    this.editingWarrantyId = r.id;
+    document.getElementById('w-editing-record-id').value = r.id;
+    document.getElementById('w-linked-quote-id').value = r.quote_id || '';
+    document.getElementById('w-form-mode-title').textContent = `修改保固卡資料（編號：${r.record_no}）`;
+    document.getElementById('w-btn-save-text').textContent = '儲存修改資料';
+    document.getElementById('w-cancel-edit-box').style.display = 'block';
+
+    const setVal = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.value = val || '';
+    };
+
+    setVal('w-customer-name', r.customer_name);
+    setVal('w-license-plate', r.license_plate);
+    setVal('w-customer-phone', r.customer_phone);
+    setVal('w-original-color', r.original_color);
+    setVal('w-car-model', r.car_model);
+    setVal('w-completion-date', (r.completion_date || '').replace(/\//g, '-'));
+    setVal('w-service-brand', r.service_brand);
+    setVal('w-service-model', r.service_model);
+    setVal('w-notes', r.notes);
+
+    this.updateWarrantyLivePreview();
+    this.switchWarrantyTab('create');
+    this.showToast(`已載入【${r.license_plate}】保固卡資料至編輯區`);
+  },
+
+  async viewWarrantyAudit(id) {
+    const res = await this.api(`/api/warranty/records/${id}`);
+    if (!res || !res.success) {
+      this.showToast('讀取異動履歷失敗', 'error');
+      return;
+    }
+
+    const modal = document.getElementById('w-audit-modal');
+    const title = document.getElementById('w-audit-modal-title');
+    const badge = document.getElementById('w-audit-modal-badge');
+    const timeline = document.getElementById('w-audit-timeline');
+
+    title.textContent = `保固卡履歷：${res.record.license_plate}（${res.record.customer_name}）`;
+    badge.textContent = res.record.record_no;
+
+    const fieldLabels = {
+      customer_name: '車主姓名',
+      customer_phone: '車主電話',
+      car_model: '車型車種',
+      completion_date: '完工日期',
+      license_plate: '車主車牌',
+      original_color: '原始車色',
+      service_brand: '施工品牌',
+      service_model: '施工型號',
+      notes: '廠內備註'
+    };
+
+    if (!res.logs || res.logs.length === 0) {
+      timeline.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 20px;">尚無異動紀錄</div>';
+    } else {
+      timeline.innerHTML = res.logs.map(log => {
+        let diffHtml = '';
+        try {
+          const parsed = JSON.parse(log.changes_json || '{}');
+          if (log.action === 'UPDATE') {
+            const lines = Object.entries(parsed).map(([key, val]) => `
+              <div class="diff-line">
+                <span class="diff-field-name">${fieldLabels[key] || key}</span>
+                <span class="diff-from">${this.escapeHtml(val.from || '（空白）')}</span>
+                <span class="diff-arrow">➔</span>
+                <span class="diff-to">${this.escapeHtml(val.to || '（空白）')}</span>
+              </div>
+            `).join('');
+            diffHtml = `<div class="w-timeline-diffs">${lines}</div>`;
+          } else if (log.action === 'REPRINT') {
+            diffHtml = `<div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">門市人員重新產出並下載/列印 PDF</div>`;
+          }
+        } catch (e) {}
+
+        const actionText = log.action === 'CREATE' ? '✨ 建立新保固卡' : log.action === 'UPDATE' ? '✏️ 修改客戶資料' : '🖨️ 重新列印保固卡';
+
+        return `
+          <div class="w-timeline-item">
+            <div class="w-timeline-dot"></div>
+            <div class="w-timeline-header">
+              <span class="w-action-tag">${actionText}</span>
+              <span>經辦人：${this.escapeHtml(log.changed_by)}</span>
+            </div>
+            <div class="w-timeline-time">${new Date(log.changed_at).toLocaleString('zh-TW', { hour12: false })}</div>
+            ${diffHtml}
+          </div>
+        `;
+      }).join('');
+    }
+
+    modal.style.display = 'block';
+  },
+
+  closeWarrantyAuditModal() {
+    const modal = document.getElementById('w-audit-modal');
+    if (modal) modal.style.display = 'none';
+  },
+
+  async deleteWarrantyRecord(id, recordNo) {
+    if (!confirm(`確定要刪除保固卡【${recordNo}】嗎？此操作無法復原！`)) return;
+    const res = await this.api(`/api/warranty/records/${id}`, { method: 'DELETE' });
+    if (res && res.success) {
+      this.showToast(`已刪除保固卡 ${recordNo}`);
+      this.loadWarrantyRecords(document.getElementById('w-search-input')?.value || '');
+    } else {
+      this.showToast(res?.message || '刪除失敗', 'error');
+    }
+  },
+
+  convertCurrentQuoteToWarranty() {
+    this.closePdfModal();
+    const q = this.previewQuoteData || this.currentQuote;
+    if (!q) {
+      this.showToast('無法取得目前報價單資料', 'error');
+      return;
+    }
+
+    this.navigate('warranty');
+    this.switchWarrantyTab('create');
+    this.resetWarrantyForm();
+
+    const setVal = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.value = val || '';
+    };
+
+    setVal('w-linked-quote-id', q.id || '');
+    setVal('w-customer-name', q.customer_name);
+    setVal('w-customer-phone', q.customer_phone);
+    setVal('w-license-plate', q.car_plate);
+    setVal('w-car-model', `${q.car_brand || ''} ${q.car_model || ''}`.trim());
+
+    let items = [];
+    if (Array.isArray(q.items)) {
+      items = q.items;
+    } else if (q.items_json) {
+      try { items = JSON.parse(q.items_json); } catch (e) {}
+    }
+
+    if (items.length > 0) {
+      const firstItem = items[0];
+      const matName = firstItem.material_name || '';
+      if (matName.includes(' - ')) {
+        const parts = matName.split(' - ');
+        setVal('w-service-brand', parts[0].trim());
+        setVal('w-service-model', parts[1].trim());
+      } else {
+        setVal('w-service-brand', matName);
+        setVal('w-service-model', firstItem.note || firstItem.part_name || '');
+      }
+    }
+
+    this.updateWarrantyLivePreview();
+    this.showToast(`已將報價單【${q.quote_number || ''}】資料帶入保固卡！`, 'success');
   }
 };
 

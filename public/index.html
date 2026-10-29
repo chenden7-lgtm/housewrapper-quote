@@ -43,6 +43,10 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
           <span>歷史報價單</span>
         </button>
+        <button class="nav-link" id="nav-warranty" onclick="app.navigate('warranty')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          <span>保固卡系統</span>
+        </button>
         <button class="nav-link" id="nav-admin" onclick="app.navigate('admin')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
           <span>價格與項目設定</span>
@@ -113,6 +117,19 @@
           <p class="portal-card-desc">自主調整犀牛皮、改色膜、隔熱紙預設報價。管理汽車品牌車型級距 (S/M/L/XL)、膜料品牌、門市條款與全庫備份匯出。</p>
           <div class="portal-card-cta">
             <span>進入管理後台</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </div>
+        </div>
+
+        <!-- Entry 4: 好室多膜保固卡 -->
+        <div class="portal-card portal-card-featured" onclick="app.navigate('warranty')">
+          <div class="portal-icon-box">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          </div>
+          <h2 class="portal-card-title">保固卡自動產生系統</h2>
+          <p class="portal-card-desc">依好室多膜原版 A4 向量模板精準疊印，提供即時排版預覽、車牌快速搜尋重印、多同仁共用履歷資料庫。</p>
+          <div class="portal-card-cta">
+            <span>製作／查詢保固卡</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
           </div>
         </div>
@@ -768,7 +785,330 @@
       </div>
     </section>
 
+    <!-- ====================================================================
+         VIEW 4: 保固卡自動產生系統
+         ==================================================================== -->
+    <section class="view-section" id="view-warranty">
+      <div class="warranty-page-container">
+        <!-- Sub-navigation Header for Warranty Module -->
+        <div class="warranty-header-bar">
+          <div class="warranty-header-titles">
+            <div class="warranty-badge">HOUSE WRAPPER GUARANTEE</div>
+            <h2 class="warranty-main-title">好室多膜 保固卡管理系統</h2>
+            <p class="warranty-sub-title">100% 原始向量模板疊印・即時排版預覽・車牌快速搜尋重印・同仁共用線上資料庫</p>
+          </div>
+          <div class="warranty-tab-nav">
+            <button class="warranty-subtab active" id="wtab-btn-create" onclick="app.switchWarrantyTab('create')">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              <span>新增／編輯保固卡</span>
+            </button>
+            <button class="warranty-subtab" id="wtab-btn-history" onclick="app.switchWarrantyTab('history')">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+              <span>歷史保固卡紀錄</span>
+              <span class="w-counter-pill" id="w-badge-record-count">0</span>
+            </button>
+            <button class="warranty-subtab" id="wtab-btn-presets" onclick="app.switchWarrantyTab('presets')">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+              <span>常用品牌／型號</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Subview 1: 新增保固卡 (Create & Live Preview Workspace) -->
+        <div class="warranty-subview active" id="wsub-create">
+          <div class="warranty-workspace-grid">
+            <!-- Left: Form Input Area -->
+            <div class="w-form-card">
+              <div class="w-card-header">
+                <div>
+                  <h3 class="w-card-title" id="w-form-mode-title">填寫車主與施工資訊</h3>
+                  <p class="w-card-desc">資料輸入時右側即時向量預覽，支援長車型縮放與自動轉大寫</p>
+                </div>
+                <div class="w-header-tools">
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="app.fillWarrantyDemoData()">示範範例</button>
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="app.resetWarrantyForm()">清空</button>
+                </div>
+              </div>
+
+              <form id="warrantyCardForm" class="w-form-body" onsubmit="return false;">
+                <input type="hidden" id="w-editing-record-id" value="">
+                <input type="hidden" id="w-linked-quote-id" value="">
+
+                <div class="w-form-fields-grid">
+                  <!-- Field 1: 車主姓名 -->
+                  <div class="form-group">
+                    <label class="form-label">
+                      <span>車主姓名</span>
+                      <span class="required-star">*</span>
+                    </label>
+                    <input type="text" id="w-customer-name" class="form-input" placeholder="例如：郭書豪" oninput="app.updateWarrantyLivePreview()" required>
+                  </div>
+
+                  <!-- Field 5: 車主車牌 -->
+                  <div class="form-group">
+                    <label class="form-label">
+                      <span>車主車牌</span>
+                      <span class="required-star">*</span>
+                      <span class="field-hint-tag">自動大寫</span>
+                    </label>
+                    <input type="text" id="w-license-plate" class="form-input w-plate-input" placeholder="例如：EBK-1505" oninput="this.value = this.value.toUpperCase(); app.updateWarrantyLivePreview();" required>
+                  </div>
+
+                  <!-- Field 2: 車主電話 -->
+                  <div class="form-group">
+                    <label class="form-label">
+                      <span>車主電話</span>
+                      <span class="field-hint-tag">文字儲存保留首位0</span>
+                    </label>
+                    <input type="tel" id="w-customer-phone" class="form-input" placeholder="例如：0900000000" oninput="app.updateWarrantyLivePreview()">
+                  </div>
+
+                  <!-- Field 6: 原始車色 -->
+                  <div class="form-group">
+                    <label class="form-label">
+                      <span>原始車色</span>
+                    </label>
+                    <input type="text" id="w-original-color" class="form-input" placeholder="例如：白、黑、珍珠白" oninput="app.updateWarrantyLivePreview()">
+                    <div class="w-quick-pills" id="w-color-pills">
+                      <span class="w-pill" onclick="app.setWarrantyField('w-original-color', '白')">白</span>
+                      <span class="w-pill" onclick="app.setWarrantyField('w-original-color', '黑')">黑</span>
+                      <span class="w-pill" onclick="app.setWarrantyField('w-original-color', '灰')">灰</span>
+                      <span class="w-pill" onclick="app.setWarrantyField('w-original-color', '銀')">銀</span>
+                      <span class="w-pill" onclick="app.setWarrantyField('w-original-color', '藍')">藍</span>
+                      <span class="w-pill" onclick="app.setWarrantyField('w-original-color', '紅')">紅</span>
+                    </div>
+                  </div>
+
+                  <!-- Field 3: 車型車種 -->
+                  <div class="form-group full-width-field">
+                    <label class="form-label">
+                      <span>車型車種</span>
+                      <span class="field-hint-tag">長車名等比縮放</span>
+                    </label>
+                    <input type="text" id="w-car-model" class="form-input" placeholder="例如：Tesla Model Y / Mercedes-Benz AMG" oninput="app.updateWarrantyLivePreview()">
+                    <div class="w-quick-pills">
+                      <span class="w-pill" onclick="app.setWarrantyField('w-car-model', 'Tesla Model Y')">Model Y</span>
+                      <span class="w-pill" onclick="app.setWarrantyField('w-car-model', 'Tesla Model 3')">Model 3</span>
+                      <span class="w-pill" onclick="app.setWarrantyField('w-car-model', 'Tesla Model X')">Model X</span>
+                      <span class="w-pill" onclick="app.setWarrantyField('w-car-model', 'Porsche Macan GTS')">Macan GTS</span>
+                      <span class="w-pill" onclick="app.setWarrantyField('w-car-model', 'BMW i4 M50')">BMW i4</span>
+                    </div>
+                  </div>
+
+                  <!-- Field 4: 完工日期 -->
+                  <div class="form-group">
+                    <label class="form-label">
+                      <span>完工日期</span>
+                      <span class="field-hint-tag">預設當日</span>
+                    </label>
+                    <input type="date" id="w-completion-date" class="form-input" onchange="app.updateWarrantyLivePreview()" required>
+                  </div>
+
+                  <!-- Field 7: 施工品牌 -->
+                  <div class="form-group">
+                    <label class="form-label">
+                      <span>施工品牌</span>
+                      <span class="field-hint-tag">點選常用選項</span>
+                    </label>
+                    <input type="text" id="w-service-brand" class="form-input" placeholder="例如：AX Film、XPEL" oninput="app.updateWarrantyLivePreview()">
+                    <div class="w-quick-pills" id="w-brand-pills">
+                      <!-- Rendered dynamically -->
+                    </div>
+                  </div>
+
+                  <!-- Field 8: 施工型號 -->
+                  <div class="form-group full-width-field">
+                    <label class="form-label">
+                      <span>施工型號</span>
+                      <span class="field-hint-tag">點選常用選項</span>
+                    </label>
+                    <input type="text" id="w-service-model" class="form-input" placeholder="例如：超啞灰藍、TPU 透明高光亮面膜" oninput="app.updateWarrantyLivePreview()">
+                    <div class="w-quick-pills" id="w-model-pills">
+                      <!-- Rendered dynamically -->
+                    </div>
+                  </div>
+
+                  <!-- Internal Notes -->
+                  <div class="form-group full-width-field">
+                    <label class="form-label">
+                      <span>廠內備註（選填）</span>
+                      <span class="field-hint-tag">僅供內部查詢，不印於保固卡</span>
+                    </label>
+                    <input type="text" id="w-notes" class="form-input" placeholder="例如：全車包膜＋迎風面防護、車友介紹">
+                  </div>
+                </div>
+
+                <!-- Form Bottom Actions -->
+                <div class="w-form-actions">
+                  <div class="w-primary-btn-row">
+                    <button type="button" class="btn btn-primary" id="w-btn-save-record" onclick="app.saveWarrantyRecord()">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                      <span id="w-btn-save-text">儲存保固卡紀錄</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="app.downloadWarrantyFormPDF()">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                      <span>下載向量 PDF</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="app.printWarrantyCard()">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                      <span>列印保固卡</span>
+                    </button>
+                  </div>
+                  <div id="w-cancel-edit-box" style="display: none; margin-top: 10px;">
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="app.resetWarrantyForm()">✕ 取消修改返回新開立</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <!-- Right: Real-time Live Preview Area -->
+            <div class="w-preview-card">
+              <div class="w-card-header">
+                <div>
+                  <h3 class="w-card-title">保固卡即時預覽區</h3>
+                  <p class="w-card-desc">依 Illustrator 原版座標定位，標準 A4 滿版 100% 向量</p>
+                </div>
+                <div class="w-header-tools">
+                  <span class="w-format-tag">標準 A4</span>
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="app.openWarrantyFullPdf()" title="產生全尺寸向量 PDF 預覽">全尺寸 PDF 檢視</button>
+                </div>
+              </div>
+
+              <div class="w-preview-stage">
+                <div class="warranty-card-paper" id="warrantyCardPaper">
+                  <img src="/images/template_bg.png" alt="好室多膜保固卡模板" class="card-bg-img">
+                  <div class="card-text-overlay">
+                    <!-- Row 1: 車主姓名 & 車主車牌 -->
+                    <div class="field-render col-left row-1" id="w-render-customer-name">郭書豪</div>
+                    <div class="field-render col-right row-1" id="w-render-license-plate">EBK-1505</div>
+                    <!-- Row 2: 車主電話 & 原始車色 -->
+                    <div class="field-render col-left row-2" id="w-render-customer-phone">0900000000</div>
+                    <div class="field-render col-right row-2" id="w-render-original-color">白</div>
+                    <!-- Row 3: 車型車種 & 施工品牌 -->
+                    <div class="field-render col-left row-3" id="w-render-car-model">Tesla Model Y</div>
+                    <div class="field-render col-right row-3" id="w-render-service-brand">AX</div>
+                    <!-- Row 4: 完工日期 & 施工型號 -->
+                    <div class="field-render col-left row-4" id="w-render-completion-date">2025/11/19</div>
+                    <div class="field-render col-right row-4" id="w-render-service-model">超啞灰藍</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subview 2: 歷史保固卡紀錄 (Historical Records) -->
+        <div class="warranty-subview" id="wsub-history">
+          <div class="w-history-container">
+            <div class="w-history-top-bar">
+              <div class="w-search-wrap">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-search-icon"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="w-search-input" class="w-search-input" placeholder="快速搜尋車牌、車主姓名、電話、車型（例如：EBK-1505、郭書豪）..." oninput="app.onWarrantySearchInput()">
+                <button type="button" class="w-clear-search-btn" id="w-clear-search-btn" onclick="app.clearWarrantySearch()">✕</button>
+              </div>
+              <div class="w-history-actions">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="app.loadWarrantyRecords()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                  <span>重新整理</span>
+                </button>
+                <button type="button" class="btn btn-primary btn-sm" onclick="app.switchWarrantyTab('create'); app.resetWarrantyForm();">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                  <span>開立新保固卡</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th style="width: 140px;">保固卡編號</th>
+                    <th style="width: 110px;">車牌</th>
+                    <th style="width: 100px;">車主</th>
+                    <th style="width: 120px;">聯絡電話</th>
+                    <th>車型車種</th>
+                    <th>施工項目</th>
+                    <th style="width: 100px;">完工日期</th>
+                    <th style="width: 110px;">開立人員</th>
+                    <th style="width: 200px; text-align: center;">操作</th>
+                  </tr>
+                </thead>
+                <tbody id="w-records-tbody">
+                  <tr>
+                    <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 40px;">資料載入中...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subview 3: 常用選項管理 (Presets) -->
+        <div class="warranty-subview" id="wsub-presets">
+          <div class="form-panel">
+            <div class="panel-header">
+              <div class="panel-title">常用施工品牌與型號管理</div>
+            </div>
+            <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 20px;">
+              在此維護施工品牌與膜料型號常用清單，員工填寫保固卡時可一鍵快速點選套用，減少手動重複輸入。
+            </p>
+
+            <div class="grid-cols-2" style="gap: 24px;">
+              <!-- Brands Column -->
+              <div style="background: var(--bg-card-elevated); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+                <h4 style="font-size: 15px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                  <span>常用施工品牌</span>
+                </h4>
+                <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                  <input type="text" id="w-new-brand-input" class="form-input" placeholder="新增品牌名稱（例如：AX Film）">
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="app.addWarrantyPreset('brand')">新增</button>
+                </div>
+                <ul class="w-preset-admin-list" id="w-preset-brands-list">
+                  <!-- dynamic -->
+                </ul>
+              </div>
+
+              <!-- Models Column -->
+              <div style="background: var(--bg-card-elevated); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+                <h4 style="font-size: 15px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                  <span>常用施工型號</span>
+                </h4>
+                <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                  <input type="text" id="w-new-model-input" class="form-input" placeholder="新增型號名稱（例如：TPU 高光透明膜）">
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="app.addWarrantyPreset('model')">新增</button>
+                </div>
+                <ul class="w-preset-admin-list" id="w-preset-models-list">
+                  <!-- dynamic -->
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </main>
+
+  <!-- Warranty Audit Trail Modal -->
+  <div class="modal-backdrop" id="w-audit-modal" style="display: none;">
+    <div class="modal-box" style="max-width: 650px;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span id="w-audit-modal-title">保固卡異動履歷</span>
+          <span class="badge-tag" id="w-audit-modal-badge">HW-W</span>
+        </div>
+        <button class="btn-icon" onclick="app.closeWarrantyAuditModal()">✕</button>
+      </div>
+      <div class="modal-body" style="padding: 20px;">
+        <div id="w-audit-timeline" class="w-timeline">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeWarrantyAuditModal()">關閉</button>
+      </div>
+    </div>
+  </div>
 
   <!-- ====================================================================
        MODAL 1: PDF QUOTATION PREVIEW & PRINT
@@ -913,6 +1253,10 @@
         <button class="btn btn-outline" onclick="app.copyQuoteText()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
           複製文字 (LINE)
+        </button>
+        <button class="btn btn-secondary" onclick="app.convertCurrentQuoteToWarranty()" title="將此報價單資料帶入開立保固卡">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          轉開保固卡
         </button>
         <button class="btn btn-secondary" onclick="app.downloadPdf()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
