@@ -2267,3 +2267,449 @@ body::before {
   font-weight: 600;
 }
 
+/* ==========================================================================
+   VIEW 5: DEPOSIT RECEIPT MODULE STYLES (定金收據)
+   ========================================================================== */
+.deposit-workspace-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 1.25fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 1200px) {
+  .deposit-workspace-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Payment Method Selector Cards */
+.deposit-payment-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.payment-method-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--bg-card-elevated);
+  border: 2px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.payment-method-option input[type="radio"] {
+  display: none;
+}
+
+.payment-method-option .pm-icon-wrap {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.payment-method-option .pm-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.payment-method-option .pm-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.payment-method-option:hover {
+  border-color: #d97706;
+  background: rgba(234, 179, 8, 0.05);
+}
+
+.payment-method-option.active {
+  border-color: #eab308;
+  background: rgba(234, 179, 8, 0.1);
+  box-shadow: 0 0 0 1px #eab308;
+}
+
+/* Receipt Preview Column */
+.deposit-preview-column {
+  position: sticky;
+  top: 24px;
+}
+
+.deposit-sheet-outer {
+  background: #1e293b;
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-xl);
+  display: flex;
+  justify-content: center;
+  border: 1px solid var(--border-subtle);
+  overflow-x: auto;
+}
+
+/* Printable / Exportable Receipt Sheet (Pure White Background for Crisp JPG & Print) */
+.deposit-sheet {
+  width: 100%;
+  max-width: 640px;
+  background: #ffffff !important;
+  color: #111827 !important;
+  border-radius: 8px;
+  padding: 32px 36px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+  box-sizing: border-box;
+}
+
+.deposit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.deposit-brand-info {
+  flex: 1;
+}
+
+.deposit-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.deposit-logo-mark {
+  width: 38px;
+  height: 38px;
+  background: #111827;
+  color: #facc15;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.deposit-brand-name {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #111827;
+}
+
+.deposit-brand-sub {
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.deposit-store-contact {
+  font-size: 11px;
+  color: #4b5563;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-top: 4px;
+}
+
+.deposit-title-block {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.deposit-receipt-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #b45309;
+  background: #fef3c7;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+.deposit-title-main {
+  font-size: 22px;
+  font-weight: 900;
+  color: #111827;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+
+.deposit-meta-row {
+  font-size: 11.5px;
+  color: #4b5563;
+  margin-top: 2px;
+}
+
+.deposit-meta-label {
+  color: #6b7280;
+}
+
+.deposit-meta-val {
+  font-weight: 700;
+  color: #111827;
+}
+
+.deposit-gold-line {
+  height: 3px;
+  background: linear-gradient(90deg, #ca8a04 0%, #eab308 50%, #ca8a04 100%);
+  margin: 18px 0;
+  border-radius: 2px;
+}
+
+/* Customer & Vehicle Info Grid */
+.deposit-client-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-bottom: 18px;
+}
+
+.deposit-client-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.deposit-client-row:last-child {
+  margin-bottom: 0;
+}
+
+.deposit-client-item {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.deposit-client-item.full {
+  flex: 100%;
+}
+
+.deposit-client-item .d-label {
+  color: #64748b;
+  font-size: 12px;
+  flex-shrink: 0;
+  font-weight: 500;
+}
+
+.deposit-client-item .d-val {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.deposit-client-item .d-val.strong {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.deposit-client-item .plate-badge {
+  background: #0f172a;
+  color: #ffffff;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+}
+
+/* Amount Highlight Card */
+.deposit-amount-card {
+  background: #fffbeb;
+  border: 2px solid #fde68a;
+  border-radius: 10px;
+  padding: 18px 22px;
+  margin-bottom: 18px;
+  position: relative;
+}
+
+.deposit-amount-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #92400e;
+  margin-bottom: 8px;
+}
+
+.deposit-method-tag {
+  background: #f59e0b;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 99px;
+  letter-spacing: 0.03em;
+}
+
+.deposit-amount-digits {
+  font-size: 34px;
+  font-weight: 900;
+  color: #b45309;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+.deposit-amount-chinese {
+  font-size: 13.5px;
+  color: #78350f;
+  margin-bottom: 4px;
+}
+
+.deposit-amount-chinese strong {
+  font-size: 14.5px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.deposit-transfer-details {
+  font-size: 12px;
+  color: #92400e;
+  background: #fef3c7;
+  padding: 6px 10px;
+  border-radius: 6px;
+  margin-top: 8px;
+  border-left: 3px solid #d97706;
+}
+
+/* Contract Notice Box (Important Non-refundable Stipulation) */
+.deposit-notice-box {
+  background: #fef2f2;
+  border: 1.5px solid #fecaca;
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-bottom: 22px;
+}
+
+.deposit-notice-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #b91c1c;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+
+.deposit-notice-body {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #7f1d1d;
+}
+
+.deposit-notice-body strong {
+  color: #991b1b;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.deposit-notes-line {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed #fca5a5;
+  font-size: 11.5px;
+  color: #991b1b;
+}
+
+/* Footer Signatures */
+.deposit-footer-sign {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 20px;
+  padding-top: 12px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.deposit-sign-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.deposit-sign-item .sign-label {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.sign-seal-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 14px;
+}
+
+.sign-seal-box #d-prev-cashier-sign {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  border-bottom: 1px dashed #94a3b8;
+  padding-bottom: 2px;
+  min-width: 100px;
+}
+
+.store-seal-circle {
+  width: 58px;
+  height: 58px;
+  border: 2px solid #dc2626;
+  border-radius: 50%;
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 9.5px;
+  font-weight: 800;
+  line-height: 1.2;
+  transform: rotate(-8deg);
+  opacity: 0.88;
+  user-select: none;
+}
+
+.sign-line-placeholder {
+  font-size: 10.5px;
+  color: #94a3b8;
+  line-height: 1.4;
+  padding-top: 8px;
+}
+
+/* Print Specific Rules for Deposit Sheet */
+@media print {
+  body.printing-deposit * {
+    visibility: hidden;
+  }
+  body.printing-deposit #deposit-receipt-render,
+  body.printing-deposit #deposit-receipt-render * {
+    visibility: visible;
+  }
+  body.printing-deposit #deposit-receipt-render {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 20mm;
+    box-shadow: none;
+    border: none;
+  }
+}
+

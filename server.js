@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
-const { db, initDatabase, generateRecordNo } = require('./db');
+const { db, initDatabase, generateRecordNo, generateDepositNo } = require('./db');
 const { generateWarrantyPDF } = require('./pdf-service');
 
 // Ensure database is initialized
@@ -577,6 +577,7 @@ app.get('/api/backup/export', authenticate, (req, res) => {
   const warrantyRecords = db.prepare('SELECT * FROM warranty_records').all();
   const recordLogs = db.prepare('SELECT * FROM record_logs').all();
   const presetOptions = db.prepare('SELECT * FROM preset_options').all();
+  const depositReceipts = db.prepare('SELECT * FROM deposit_receipts').all();
 
   const backupData = {
     version: '1.0.0',
@@ -592,7 +593,8 @@ app.get('/api/backup/export', authenticate, (req, res) => {
       quotes,
       warrantyRecords,
       recordLogs,
-      presetOptions
+      presetOptions,
+      depositReceipts
     }
   };
 
@@ -778,6 +780,38 @@ app.post('/api/backup/import', authenticate, (req, res) => {
           w.id, w.record_no, w.quote_id || null, w.customer_name, w.customer_phone, w.car_model,
           w.completion_date, w.license_plate, w.original_color, w.service_brand, w.service_model,
           w.notes || '', w.template_version || 'v1.0', w.created_by, w.created_at, w.updated_by, w.updated_at
+        );
+      }
+    }
+    if (Array.isArray(data.depositReceipts)) {
+      for (const d of data.depositReceipts) {
+        db.prepare(`
+          INSERT INTO deposit_receipts (
+            id, receipt_no, quote_id, customer_name, customer_phone, car_plate, car_model,
+            deposit_amount, payment_method, transfer_last5, receipt_date, appointment_date,
+            service_item, notes, terms_text, created_by, created_at, updated_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          ON CONFLICT(id) DO UPDATE SET
+            receipt_no = excluded.receipt_no,
+            quote_id = excluded.quote_id,
+            customer_name = excluded.customer_name,
+            customer_phone = excluded.customer_phone,
+            car_plate = excluded.car_plate,
+            car_model = excluded.car_model,
+            deposit_amount = excluded.deposit_amount,
+            payment_method = excluded.payment_method,
+            transfer_last5 = excluded.transfer_last5,
+            receipt_date = excluded.receipt_date,
+            appointment_date = excluded.appointment_date,
+            service_item = excluded.service_item,
+            notes = excluded.notes,
+            terms_text = excluded.terms_text,
+            updated_at = excluded.updated_at
+        `).run(
+          d.id, d.receipt_no, d.quote_id || null, d.customer_name, d.customer_phone,
+          d.car_plate || '', d.car_model || '', d.deposit_amount, d.payment_method || '現金',
+          d.transfer_last5 || '', d.receipt_date, d.appointment_date || '', d.service_item || '',
+          d.notes || '', d.terms_text || '', d.created_by, d.created_at, d.updated_at
         );
       }
     }
@@ -1088,6 +1122,167 @@ app.post('/api/warranty/pdf/download-form', authenticate, async (req, res) => {
     console.error('Form download error:', err);
     res.status(500).json({ success: false, message: '下載失敗: ' + err.message });
   }
+});
+
+// --------------------------------------------------------------------------
+// Deposit Receipts APIs (定金收據)
+// --------------------------------------------------------------------------
+app.get('/api/deposits', authenticate, (req, res) => {
+  const { q } = req.query;
+  let sql = 'SELECT * FROM deposit_receipts';
+  const params = [];
+
+  if (q && q.trim()) {
+    const searchTerm = `%${q.trim()}%`;
+    sql += ` WHERE (receipt_no LIKE ? OR customer_name LIKE ? OR customer_phone LIKE ? OR car_plate LIKE ? OR car_model LIKE ?)`;
+    params.push(searchTerm, searchTerm, searchTerm, searchTerm, searchTerm);
+  }
+
+  sql += ' ORDER BY id DESC';
+  const deposits = db.prepare(sql).all(...params);
+  res.json({ success: true, count: deposits.length, deposits });
+});
+
+app.get('/api/deposits/:id', authenticate, (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const deposit = db.prepare('SELECT * FROM deposit_receipts WHERE id = ?').get(id);
+  if (!deposit) {
+    return res.status(404).json({ success: false, message: '找不到此定金收據' });
+  }
+  res.json({ success: true, deposit });
+});
+
+app.post('/api/deposits', authenticate, (req, res) => {
+  const {
+    quote_id,
+    customer_name,
+    customer_phone,
+    car_plate,
+    car_model,
+    deposit_amount,
+    payment_method,
+    transfer_last5,
+    receipt_date,
+    appointment_date,
+    service_item,
+    notes,
+    terms_text
+  } = req.body;
+
+  if (!customer_name || !customer_phone) {
+    return res.status(400).json({ success: false, message: '客戶姓名與電話為必填欄位' });
+  }
+
+  const amount = parseInt(deposit_amount, 10);
+  if (isNaN(amount) || amount <= 0) {
+    return res.status(400).json({ success: false, message: '請輸入有效的定金金額' });
+  }
+
+  const receipt_no = generateDepositNo();
+  const operator = req.user.displayName || req.user.username;
+  const defaultTerms = '依民法第249條及雙方合約約定，本定金用於為貴車保留專屬施作檔期與材料備料。除因不可歸責於雙方當事人之事由致不能履行外，定金收訖後無法隨意退回，特此開立收據憑證。';
+
+  const insert = db.prepare(`
+    INSERT INTO deposit_receipts (
+      receipt_no, quote_id, customer_name, customer_phone, car_plate, car_model,
+      deposit_amount, payment_method, transfer_last5, receipt_date, appointment_date,
+      service_item, notes, terms_text, created_by
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  const result = insert.run(
+    receipt_no,
+    quote_id || null,
+    customer_name.trim(),
+    customer_phone.trim(),
+    (car_plate || '').toUpperCase().trim(),
+    (car_model || '').trim(),
+    amount,
+    payment_method || '現金',
+    (transfer_last5 || '').trim(),
+    (receipt_date || new Date().toISOString().slice(0, 10)).trim(),
+    (appointment_date || '').trim(),
+    (service_item || '').trim(),
+    (notes || '').trim(),
+    (terms_text || defaultTerms).trim(),
+    operator
+  );
+
+  const createdDeposit = db.prepare('SELECT * FROM deposit_receipts WHERE id = ?').get(result.lastInsertRowid);
+  res.json({ success: true, message: '定金收據已成功開立', deposit: createdDeposit });
+});
+
+app.put('/api/deposits/:id', authenticate, (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const oldDeposit = db.prepare('SELECT * FROM deposit_receipts WHERE id = ?').get(id);
+  if (!oldDeposit) {
+    return res.status(404).json({ success: false, message: '找不到此定金收據' });
+  }
+
+  const {
+    customer_name,
+    customer_phone,
+    car_plate,
+    car_model,
+    deposit_amount,
+    payment_method,
+    transfer_last5,
+    receipt_date,
+    appointment_date,
+    service_item,
+    notes,
+    terms_text
+  } = req.body;
+
+  const amount = parseInt(deposit_amount, 10);
+
+  const update = db.prepare(`
+    UPDATE deposit_receipts SET
+      customer_name = ?,
+      customer_phone = ?,
+      car_plate = ?,
+      car_model = ?,
+      deposit_amount = ?,
+      payment_method = ?,
+      transfer_last5 = ?,
+      receipt_date = ?,
+      appointment_date = ?,
+      service_item = ?,
+      notes = ?,
+      terms_text = ?,
+      updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?
+  `);
+
+  update.run(
+    customer_name?.trim() ?? oldDeposit.customer_name,
+    customer_phone?.trim() ?? oldDeposit.customer_phone,
+    (car_plate || oldDeposit.car_plate || '').toUpperCase().trim(),
+    car_model?.trim() ?? oldDeposit.car_model,
+    isNaN(amount) ? oldDeposit.deposit_amount : amount,
+    payment_method || oldDeposit.payment_method,
+    transfer_last5?.trim() ?? oldDeposit.transfer_last5,
+    receipt_date?.trim() ?? oldDeposit.receipt_date,
+    appointment_date?.trim() ?? oldDeposit.appointment_date,
+    service_item?.trim() ?? oldDeposit.service_item,
+    notes?.trim() ?? oldDeposit.notes,
+    terms_text?.trim() ?? oldDeposit.terms_text,
+    id
+  );
+
+  const updatedDeposit = db.prepare('SELECT * FROM deposit_receipts WHERE id = ?').get(id);
+  res.json({ success: true, message: '定金收據已成功更新', deposit: updatedDeposit });
+});
+
+app.delete('/api/deposits/:id', authenticate, (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const deposit = db.prepare('SELECT * FROM deposit_receipts WHERE id = ?').get(id);
+  if (!deposit) {
+    return res.status(404).json({ success: false, message: '找不到此定金收據' });
+  }
+
+  db.prepare('DELETE FROM deposit_receipts WHERE id = ?').run(id);
+  res.json({ success: true, message: '已成功刪除該定金收據' });
 });
 
 // Serve frontend static files

@@ -47,6 +47,10 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
           <span>保固卡系統</span>
         </button>
+        <button class="nav-link" id="nav-deposit" onclick="app.navigate('deposit')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><path d="M12 6v2m0 8v2"></path></svg>
+          <span>定金收據</span>
+        </button>
         <button class="nav-link" id="nav-admin" onclick="app.navigate('admin')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
           <span>價格與項目設定</span>
@@ -122,7 +126,7 @@
         </div>
 
         <!-- Entry 4: 好室多膜保固卡 -->
-        <div class="portal-card portal-card-featured" onclick="app.navigate('warranty')">
+        <div class="portal-card" onclick="app.navigate('warranty')">
           <div class="portal-icon-box">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
           </div>
@@ -130,6 +134,19 @@
           <p class="portal-card-desc">依好室多膜原版 A4 向量模板精準疊印，提供即時排版預覽、車牌快速搜尋重印、多同仁共用履歷資料庫。</p>
           <div class="portal-card-cta">
             <span>製作／查詢保固卡</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </div>
+        </div>
+
+        <!-- Entry 5: 定金收據開立系統 -->
+        <div class="portal-card portal-card-featured" onclick="app.navigate('deposit')">
+          <div class="portal-icon-box">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><path d="M12 6v2m0 8v2"></path></svg>
+          </div>
+          <h2 class="portal-card-title">定金收據開立系統</h2>
+          <p class="portal-card-desc">客戶預約施作收取定金。姓名電話極簡填寫、選擇現金或匯款、載明合約不退款重要聲明，一鍵產出高畫質 JPG 圖片（傳 LINE 首選）。</p>
+          <div class="portal-card-cta">
+            <span>開立定金收據</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
           </div>
         </div>
@@ -1087,6 +1104,423 @@
       </div>
     </section>
 
+    <!-- ====================================================================
+         VIEW 5: 定金收據系統 (Deposit Receipts)
+         ==================================================================== -->
+    <section class="view-section" id="view-deposit">
+      <div class="warranty-page-container">
+        <!-- Sub-navigation Header for Deposit Module -->
+        <div class="warranty-header-bar">
+          <div class="warranty-header-titles">
+            <div class="warranty-badge" style="background: rgba(234, 179, 8, 0.15); color: #eab308; border: 1px solid rgba(234, 179, 8, 0.3);">OFFICIAL DEPOSIT RECEIPT</div>
+            <h2 class="warranty-main-title">好室多膜 預約定金收據系統</h2>
+            <p class="warranty-sub-title">極簡輸入客戶姓名與電話・支援現金與匯款・合約不退款重要條款・一鍵匯出高質感 JPG 圖片傳送 LINE</p>
+          </div>
+          <div class="warranty-tab-nav">
+            <button class="warranty-subtab active" id="dtab-btn-create" onclick="app.switchDepositTab('create')">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              <span>開立／編輯定金收據</span>
+            </button>
+            <button class="warranty-subtab" id="dtab-btn-history" onclick="app.switchDepositTab('history')">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+              <span>歷史定金收據紀錄</span>
+              <span class="w-counter-pill" id="d-badge-record-count">0</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Subview 1: 新增／編輯收據工作台 -->
+        <div class="warranty-subview active" id="dsub-create">
+          <div class="deposit-workspace-grid">
+            <!-- Left Form Area -->
+            <div class="w-form-card">
+              <div class="w-card-header">
+                <div>
+                  <h3 class="w-card-title" id="d-form-mode-title">填寫定金收據資訊</h3>
+                  <p class="w-card-desc">姓名與電話為必要資料，支援選擇現金或匯款，右側即時產出收據預覽</p>
+                </div>
+                <div class="w-header-tools">
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="app.fillDepositDemoData()">示範資料</button>
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="app.resetDepositForm()">清空</button>
+                </div>
+              </div>
+
+              <form id="depositReceiptForm" class="w-form-body" onsubmit="return false;">
+                <input type="hidden" id="d-editing-record-id" value="">
+                <input type="hidden" id="d-linked-quote-id" value="">
+
+                <div class="w-form-fields-grid">
+                  <!-- 客戶姓名 -->
+                  <div class="form-group">
+                    <label class="form-label">
+                      <span>客戶姓名</span>
+                      <span class="required-star">*</span>
+                    </label>
+                    <input type="text" id="d-customer-name" class="form-input" placeholder="例如：林先生 / 陳小姐" oninput="app.updateDepositLivePreview()" required>
+                  </div>
+
+                  <!-- 聯絡電話 -->
+                  <div class="form-group">
+                    <label class="form-label">
+                      <span>聯絡電話</span>
+                      <span class="required-star">*</span>
+                    </label>
+                    <input type="tel" id="d-customer-phone" class="form-input" placeholder="例如：0912-345-678" oninput="app.updateDepositLivePreview()" required>
+                  </div>
+
+                  <!-- 車牌號碼 (選填) -->
+                  <div class="form-group">
+                    <label class="form-label">
+                      <span>預約車牌 (選填)</span>
+                      <span class="field-hint-tag">自動大寫</span>
+                    </label>
+                    <input type="text" id="d-car-plate" class="form-input w-plate-input" placeholder="例如：BTQ-8899" oninput="this.value = this.value.toUpperCase(); app.updateDepositLivePreview();">
+                  </div>
+
+                  <!-- 施工車款 (選填) -->
+                  <div class="form-group">
+                    <label class="form-label">
+                      <span>預約車型 (選填)</span>
+                    </label>
+                    <input type="text" id="d-car-model" class="form-input" placeholder="例如：Tesla Model Y" oninput="app.updateDepositLivePreview()">
+                    <div class="w-quick-pills">
+                      <span class="w-pill" onclick="app.setDepositField('d-car-model', 'Tesla Model Y')">Model Y</span>
+                      <span class="w-pill" onclick="app.setDepositField('d-car-model', 'Tesla Model 3')">Model 3</span>
+                      <span class="w-pill" onclick="app.setDepositField('d-car-model', 'Tesla Model X')">Model X</span>
+                      <span class="w-pill" onclick="app.setDepositField('d-car-model', 'Porsche Macan')">Macan</span>
+                    </div>
+                  </div>
+
+                  <!-- 收款方式 (現金 / 匯款) -->
+                  <div class="form-group full-width-field">
+                    <label class="form-label">
+                      <span>收款方式</span>
+                      <span class="required-star">*</span>
+                      <span class="field-hint-tag">依照顧客付款方式點選</span>
+                    </label>
+                    <div class="deposit-payment-selector">
+                      <label class="payment-method-option active" id="pay-opt-cash">
+                        <input type="radio" name="d-payment-type" value="現金" checked onchange="app.onDepositPaymentChange()">
+                        <div class="pm-icon-wrap">💵</div>
+                        <div class="pm-text-wrap">
+                          <div class="pm-title">門市現金收款 (Cash)</div>
+                          <div class="pm-desc">臨櫃現場以現鈔繳交定金</div>
+                        </div>
+                      </label>
+                      <label class="payment-method-option" id="pay-opt-transfer">
+                        <input type="radio" name="d-payment-type" value="匯款" onchange="app.onDepositPaymentChange()">
+                        <div class="pm-icon-wrap">🏦</div>
+                        <div class="pm-text-wrap">
+                          <div class="pm-title">銀行匯款 / 轉帳 (Transfer)</div>
+                          <div class="pm-desc">ATM / 網銀線上轉入公司帳戶</div>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- 匯款帳號末五碼 (僅匯款時需要) -->
+                  <div class="form-group full-width-field" id="transfer-last5-group" style="display: none;">
+                    <label class="form-label">
+                      <span>匯款人帳號末五碼 / 轉帳姓名</span>
+                      <span class="field-hint-tag">方便門市與對帳核對</span>
+                    </label>
+                    <input type="text" id="d-transfer-last5" class="form-input" placeholder="例如：12345 或 國泰-王大明" oninput="app.updateDepositLivePreview()">
+                  </div>
+
+                  <!-- 定金金額 (NT$) -->
+                  <div class="form-group full-width-field">
+                    <label class="form-label">
+                      <span>定金實收金額 (NT$)</span>
+                      <span class="required-star">*</span>
+                      <span class="field-hint-tag" id="d-chinese-amount-preview">新台幣 貳萬元整</span>
+                    </label>
+                    <input type="number" id="d-deposit-amount" class="form-input" placeholder="例如：20000" value="20000" min="0" step="500" oninput="app.updateDepositLivePreview()" required style="font-size: 18px; font-weight: 700; color: #eab308;">
+                    <div class="w-quick-pills">
+                      <span class="w-pill" onclick="app.setDepositAmount(5000)">$5,000</span>
+                      <span class="w-pill" onclick="app.setDepositAmount(10000)">$10,000</span>
+                      <span class="w-pill" onclick="app.setDepositAmount(20000)">$20,000</span>
+                      <span class="w-pill" onclick="app.setDepositAmount(30000)">$30,000</span>
+                      <span class="w-pill" onclick="app.setDepositAmount(50000)">$50,000</span>
+                    </div>
+                  </div>
+
+                  <!-- 收款日期 -->
+                  <div class="form-group">
+                    <label class="form-label">
+                      <span>收款日期</span>
+                      <span class="field-hint-tag">預設當日</span>
+                    </label>
+                    <input type="date" id="d-receipt-date" class="form-input" onchange="app.updateDepositLivePreview()" required>
+                  </div>
+
+                  <!-- 預約施作日期 -->
+                  <div class="form-group">
+                    <label class="form-label">
+                      <span>預約施作 / 交車日期 (選填)</span>
+                    </label>
+                    <input type="date" id="d-appointment-date" class="form-input" onchange="app.updateDepositLivePreview()">
+                  </div>
+
+                  <!-- 預約施作項目 -->
+                  <div class="form-group full-width-field">
+                    <label class="form-label">
+                      <span>預約施作項目</span>
+                    </label>
+                    <input type="text" id="d-service-item" class="form-input" placeholder="例如：全車透明消光犀牛皮包膜 / 頂級隔熱紙施工" oninput="app.updateDepositLivePreview()">
+                    <div class="w-quick-pills">
+                      <span class="w-pill" onclick="app.setDepositField('d-service-item', '全車透明亮面犀牛皮漆面保護膜 (PPF)')">全車透明犀牛皮</span>
+                      <span class="w-pill" onclick="app.setDepositField('d-service-item', '全車消光霧面犀牛皮漆面保護膜')">全車消光犀牛皮</span>
+                      <span class="w-pill" onclick="app.setDepositField('d-service-item', '全車鑄造級改色膜施工')">全車改色膜</span>
+                      <span class="w-pill" onclick="app.setDepositField('d-service-item', '全車頂級奈米陶瓷隔熱紙施工')">全車隔熱紙</span>
+                      <span class="w-pill" onclick="app.setDepositField('d-service-item', '全車犀牛皮 + 頂級隔熱紙一站式施作')">犀牛皮+隔熱紙</span>
+                    </div>
+                  </div>
+
+                  <!-- 門市經辦人員 -->
+                  <div class="form-group">
+                    <label class="form-label">
+                      <span>門市經辦人員</span>
+                    </label>
+                    <input type="text" id="d-created-by" class="form-input" value="好室多膜 台北店" oninput="app.updateDepositLivePreview()">
+                  </div>
+
+                  <!-- 備註說明 -->
+                  <div class="form-group">
+                    <label class="form-label">
+                      <span>額外備註 (選填)</span>
+                    </label>
+                    <input type="text" id="d-notes" class="form-input" placeholder="例如：需協助代步車預約 / 原廠配件拆裝" oninput="app.updateDepositLivePreview()">
+                  </div>
+
+                  <!-- 定金合約聲明條款 (重要) -->
+                  <div class="form-group full-width-field">
+                    <label class="form-label">
+                      <span>合約定金特別聲明（定金不退條款）</span>
+                      <span class="field-hint-tag" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: rgba(239, 68, 68, 0.2);">合約規範載明</span>
+                    </label>
+                    <textarea id="d-terms-text" class="form-textarea" rows="3" oninput="app.updateDepositLivePreview()" style="font-size: 12.5px; line-height: 1.5;">依民法第249條及雙方施工合約協議約定，本定金用於為貴車保留專屬施作檔期與材料備料。除因不可歸責於雙方當事人之事由致不能履行外，定金收訖後依照合約規定無法隨意退回，特此開立收據憑證。</textarea>
+                  </div>
+                </div>
+
+                <!-- Form Action Buttons -->
+                <div class="w-action-row" style="margin-top: 20px;">
+                  <button type="button" class="btn btn-secondary" onclick="app.copyDepositLineText()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    <span>複製 LINE 文字</span>
+                  </button>
+                  <button type="button" class="btn btn-secondary" onclick="app.downloadDepositPdf()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                    <span>下載 PDF</span>
+                  </button>
+                  <button type="button" class="btn btn-secondary" onclick="app.printDepositReceipt()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                    <span>列印</span>
+                  </button>
+                  <button type="button" class="btn btn-primary" onclick="app.downloadDepositJpg()" style="background: #111827; color: #fff; font-weight: 700; border-color: #000; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                    <span>🖼️ 下載 JPG 圖片（傳 LINE）</span>
+                  </button>
+                  <button type="button" class="btn btn-primary" onclick="app.saveDepositReceipt()" style="background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%); color: #000; font-weight: 700;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                    <span>💾 儲存收據紀錄</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Right: Live Receipt Render Preview -->
+            <div class="deposit-preview-column">
+              <div class="w-preview-header">
+                <div class="w-preview-title-row">
+                  <div class="w-preview-title">定金收據即時預覽</div>
+                  <div class="w-preview-pill">高畫質 2X 輸出</div>
+                </div>
+                <div class="w-preview-quick-actions">
+                  <button class="btn btn-secondary btn-sm" onclick="app.downloadDepositJpg()">
+                    <span>🖼️ 產生圖片傳 LINE</span>
+                  </button>
+                  <button class="btn btn-secondary btn-sm" onclick="app.printDepositReceipt()">
+                    <span>🖨️ 列印</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="deposit-sheet-outer">
+                <!-- Printable & Exportable Target Container -->
+                <div class="deposit-sheet" id="deposit-receipt-render">
+                  <!-- Receipt Header -->
+                  <div class="deposit-header">
+                    <div class="deposit-brand-info">
+                      <div class="deposit-brand-row">
+                        <div class="deposit-logo-mark">
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                            <polyline points="2 17 12 22 22 17"></polyline>
+                            <polyline points="2 12 12 17 22 12"></polyline>
+                          </svg>
+                        </div>
+                        <div>
+                          <div class="deposit-brand-name">好室多膜 HOUSE WRAPPER</div>
+                          <div class="deposit-brand-sub">AUTOMOTIVE STYLING & PAINT PROTECTION</div>
+                        </div>
+                      </div>
+                      <div class="deposit-store-contact">
+                        <span>旗艦門市：台北市內湖區行愛路111號</span>
+                        <span>電話：02-2794-0710</span>
+                        <span>官方LINE：@housewrapper</span>
+                      </div>
+                    </div>
+
+                    <div class="deposit-title-block">
+                      <div class="deposit-receipt-badge">DEPOSIT RECEIPT</div>
+                      <div class="deposit-title-main">預約定金收據</div>
+                      <div class="deposit-meta-row">
+                        <span class="deposit-meta-label">收據單號：</span>
+                        <span class="deposit-meta-val" id="d-prev-receipt-no">HW-DEP-20261029-0001</span>
+                      </div>
+                      <div class="deposit-meta-row">
+                        <span class="deposit-meta-label">開立日期：</span>
+                        <span class="deposit-meta-val" id="d-prev-receipt-date">2026/10/29</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Divider Line -->
+                  <div class="deposit-gold-line"></div>
+
+                  <!-- Customer & Vehicle Info Grid -->
+                  <div class="deposit-client-card">
+                    <div class="deposit-client-row">
+                      <div class="deposit-client-item">
+                        <span class="d-label">客戶姓名：</span>
+                        <span class="d-val strong" id="d-prev-customer-name">林先生</span>
+                      </div>
+                      <div class="deposit-client-item">
+                        <span class="d-label">聯絡電話：</span>
+                        <span class="d-val strong" id="d-prev-customer-phone">0912-345-678</span>
+                      </div>
+                    </div>
+                    <div class="deposit-client-row">
+                      <div class="deposit-client-item">
+                        <span class="d-label">預約車牌：</span>
+                        <span class="d-val plate-badge" id="d-prev-car-plate">BTQ-8899</span>
+                      </div>
+                      <div class="deposit-client-item">
+                        <span class="d-label">施工車型：</span>
+                        <span class="d-val" id="d-prev-car-model">Tesla Model Y</span>
+                      </div>
+                    </div>
+                    <div class="deposit-client-row" id="d-prev-service-row">
+                      <div class="deposit-client-item full">
+                        <span class="d-label">預約項目：</span>
+                        <span class="d-val" id="d-prev-service-item">全車透明消光犀牛皮包膜 (PPF)</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Amount & Payment Method Big Card -->
+                  <div class="deposit-amount-card">
+                    <div class="deposit-amount-header">
+                      <span>定金實收金額 RECEIVED AMOUNT</span>
+                      <span class="deposit-method-tag" id="d-prev-payment-badge">💵 現金收款 CASH</span>
+                    </div>
+                    <div class="deposit-amount-digits" id="d-prev-amount-digits">NT$ 20,000</div>
+                    <div class="deposit-amount-chinese">
+                      <span>大寫金額：</span>
+                      <strong id="d-prev-amount-chinese">新台幣 貳萬元整</strong>
+                    </div>
+                    <div class="deposit-transfer-details" id="d-prev-transfer-info" style="display: none;">
+                      <span>匯款核對資訊：</span>
+                      <strong id="d-prev-transfer-text">國泰世華 / 末五碼 12345</strong>
+                    </div>
+                  </div>
+
+                  <!-- Non-refundable Contract Terms Box (Mandatory Requirement) -->
+                  <div class="deposit-notice-box">
+                    <div class="deposit-notice-header">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                      <span>合約定金重要聲明 CONTRACT TERMS</span>
+                    </div>
+                    <div class="deposit-notice-body" id="d-prev-terms-body">
+                      依民法第249條及雙方施工合約協議約定，本定金用於為貴車保留專屬施作檔期與材料備料。除因不可歸責於雙方當事人之事由致不能履行外，<strong>定金收訖後依照合約規定無法隨意退回</strong>，特此開立收據憑證。餘款將於車輛完工查驗交車時結清。
+                    </div>
+                    <div class="deposit-notes-line" id="d-prev-notes-line" style="display: none;">
+                      <span style="font-weight: 700;">備註：</span><span id="d-prev-notes-text"></span>
+                    </div>
+                  </div>
+
+                  <!-- Footer Signatures -->
+                  <div class="deposit-footer-sign">
+                    <div class="deposit-sign-item">
+                      <span class="sign-label">好室多膜 門市經辦人簽章：</span>
+                      <div class="sign-seal-box">
+                        <span id="d-prev-cashier-sign">店長 Kevin</span>
+                        <div class="store-seal-circle">好室多膜<br>收訖專用</div>
+                      </div>
+                    </div>
+                    <div class="deposit-sign-item">
+                      <span class="sign-label">客戶確認存根聯（電子收執）：</span>
+                      <div class="sign-line-placeholder">本單據由系統開立，具有正式定金收取憑證效力</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subview 2: 歷史收據紀錄 (History List) -->
+        <div class="warranty-subview" id="dsub-history">
+          <div class="w-history-container">
+            <div class="w-history-toolbar">
+              <div class="w-search-box">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="d-history-search" class="w-search-input" placeholder="搜尋收據單號、車牌、客戶姓名、電話..." oninput="app.onDepositSearchInput(this.value)">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="app.clearDepositSearch()">清除</button>
+              </div>
+              <div class="w-history-tools">
+                <button class="btn btn-secondary btn-sm" onclick="app.loadDepositRecords()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                  重新整理
+                </button>
+                <button class="btn btn-primary btn-sm" onclick="app.switchDepositTab('create'); app.resetDepositForm();">
+                  ＋ 新增收據
+                </button>
+              </div>
+            </div>
+
+            <!-- Table Card -->
+            <div class="table-card">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th style="width: 150px;">收據單號</th>
+                    <th style="width: 100px;">收款日期</th>
+                    <th style="width: 100px;">客戶姓名</th>
+                    <th style="width: 110px;">聯絡電話</th>
+                    <th style="width: 120px;">車牌 / 車型</th>
+                    <th style="width: 110px;" class="text-right">定金金額</th>
+                    <th style="width: 90px;" class="text-center">收款方式</th>
+                    <th>預約項目</th>
+                    <th style="width: 180px;" class="text-center">操作</th>
+                  </tr>
+                </thead>
+                <tbody id="d-records-tbody">
+                  <!-- Populated dynamically via JS -->
+                </tbody>
+              </table>
+              <div id="d-empty-state" class="empty-state" style="display: none; padding: 48px; text-align: center;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin: 0 auto 12px; color: var(--text-muted);"><circle cx="12" cy="12" r="10"></circle><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><path d="M12 6v2m0 8v2"></path></svg>
+                <div style="font-weight: 600; font-size: 15px;">尚無符合條件的定金收據紀錄</div>
+                <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">請於左上方點選「開立定金收據」新增一筆收據憑證</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
   </main>
 
   <!-- Warranty Audit Trail Modal -->
@@ -1257,6 +1691,10 @@
         <button class="btn btn-secondary" onclick="app.convertCurrentQuoteToWarranty()" title="將此報價單資料帶入開立保固卡">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
           轉開保固卡
+        </button>
+        <button class="btn btn-secondary" onclick="app.convertCurrentQuoteToDeposit()" title="將此報價單資料帶入開立定金收據">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><path d="M12 6v2m0 8v2"></path></svg>
+          開立定金收據
         </button>
         <button class="btn btn-secondary" onclick="app.downloadPdf()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>

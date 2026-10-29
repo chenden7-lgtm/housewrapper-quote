@@ -270,6 +270,8 @@ const app = {
       this.populateAdderDropdowns();
     } else if (viewName === 'warranty') {
       this.initWarrantyView();
+    } else if (viewName === 'deposit') {
+      this.initDepositView();
     }
   },
 
@@ -2507,6 +2509,669 @@ const app = {
 
     this.updateWarrantyLivePreview();
     this.showToast(`已將報價單【${q.quote_number || ''}】資料帶入保固卡！`, 'success');
+  },
+
+  // ========================================================================
+  // VIEW 5: DEPOSIT RECEIPT MODULE LOGIC (定金收據)
+  // ========================================================================
+  initDepositView() {
+    const dateEl = document.getElementById('d-receipt-date');
+    if (dateEl && !dateEl.value) {
+      dateEl.value = new Date().toISOString().split('T')[0];
+    }
+    this.onDepositPaymentChange();
+    this.updateDepositLivePreview();
+    this.loadDepositRecordsCount();
+  },
+
+  switchDepositTab(tab) {
+    const btnCreate = document.getElementById('dtab-btn-create');
+    const btnHist = document.getElementById('dtab-btn-history');
+    const viewCreate = document.getElementById('dsub-create');
+    const viewHist = document.getElementById('dsub-history');
+
+    if (tab === 'create') {
+      if (btnCreate) btnCreate.classList.add('active');
+      if (btnHist) btnHist.classList.remove('active');
+      if (viewCreate) viewCreate.classList.add('active');
+      if (viewHist) viewHist.classList.remove('active');
+    } else {
+      if (btnCreate) btnCreate.classList.remove('active');
+      if (btnHist) btnHist.classList.add('active');
+      if (viewCreate) viewCreate.classList.remove('active');
+      if (viewHist) viewHist.classList.add('active');
+      this.loadDepositRecords();
+    }
+  },
+
+  onDepositPaymentChange() {
+    const radio = document.querySelector('input[name="d-payment-type"]:checked');
+    const isTransfer = radio && radio.value === '匯款';
+    
+    const optCash = document.getElementById('pay-opt-cash');
+    const optTransfer = document.getElementById('pay-opt-transfer');
+    if (optCash) optCash.classList.toggle('active', !isTransfer);
+    if (optTransfer) optTransfer.classList.toggle('active', isTransfer);
+
+    const transferGrp = document.getElementById('transfer-last5-group');
+    if (transferGrp) {
+      transferGrp.style.display = isTransfer ? 'block' : 'none';
+    }
+
+    this.updateDepositLivePreview();
+  },
+
+  setDepositAmount(amount) {
+    const el = document.getElementById('d-deposit-amount');
+    if (el) {
+      el.value = amount;
+      this.updateDepositLivePreview();
+    }
+  },
+
+  setDepositField(id, val) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.value = val;
+      this.updateDepositLivePreview();
+    }
+  },
+
+  numberToChineseCurrency(num) {
+    const n = Math.floor(Math.abs(Number(num) || 0));
+    if (n === 0) return '新台幣 零元整';
+
+    const digits = ['零', '壹', '貳', '參', '肆', '伍', '陸', '柒', '捌', '玖'];
+    const units = ['', '拾', '佰', '仟'];
+    const bigUnits = ['', '萬', '億'];
+
+    let numStr = n.toString();
+    let result = '';
+    let zeroFlag = false;
+
+    // Split into 4-digit groups from right
+    const chunks = [];
+    while (numStr.length > 0) {
+      chunks.push(numStr.slice(-4));
+      numStr = numStr.slice(0, -4);
+    }
+
+    for (let i = chunks.length - 1; i >= 0; i--) {
+      const chunk = chunks[i];
+      let chunkStr = '';
+      let chunkHasNonZero = false;
+
+      for (let j = 0; j < chunk.length; j++) {
+        const digit = parseInt(chunk[j], 10);
+        const unitPos = chunk.length - 1 - j;
+
+        if (digit !== 0) {
+          if (zeroFlag) {
+            chunkStr += '零';
+            zeroFlag = false;
+          }
+          chunkStr += digits[digit] + units[unitPos];
+          chunkHasNonZero = true;
+        } else {
+          if (chunkHasNonZero) {
+            zeroFlag = true;
+          }
+        }
+      }
+
+      if (chunkHasNonZero) {
+        result += chunkStr + bigUnits[i];
+      }
+    }
+
+    return `新台幣 ${result}元整`;
+  },
+
+  updateDepositLivePreview() {
+    const name = document.getElementById('d-customer-name')?.value.trim() || '客戶姓名';
+    const phone = document.getElementById('d-customer-phone')?.value.trim() || '0900-000-000';
+    const plate = document.getElementById('d-car-plate')?.value.trim() || '未填寫車牌';
+    const model = document.getElementById('d-car-model')?.value.trim() || '依合約預約車款';
+    const rawAmt = parseInt(document.getElementById('d-deposit-amount')?.value, 10);
+    const amount = isNaN(rawAmt) ? 0 : rawAmt;
+    const radio = document.querySelector('input[name="d-payment-type"]:checked');
+    const paymentMethod = radio ? radio.value : '現金';
+    const transferLast5 = document.getElementById('d-transfer-last5')?.value.trim() || '';
+    const dateVal = document.getElementById('d-receipt-date')?.value || new Date().toISOString().split('T')[0];
+    const service = document.getElementById('d-service-item')?.value.trim() || '全車施工保護服務';
+    const notes = document.getElementById('d-notes')?.value.trim() || '';
+    const cashier = document.getElementById('d-created-by')?.value.trim() || '好室多膜 台北店';
+    const terms = document.getElementById('d-terms-text')?.value.trim() || 
+      '依民法第249條及雙方施工合約協議約定，本定金用於為貴車保留專屬施作檔期與材料備料。除因不可歸責於雙方當事人之事由致不能履行外，定金收訖後依照合約規定無法隨意退回，特此開立收據憑證。';
+
+    // Chinese currency words
+    const chineseWords = this.numberToChineseCurrency(amount);
+    const chineseHint = document.getElementById('d-chinese-amount-preview');
+    if (chineseHint) chineseHint.textContent = chineseWords;
+
+    // Update Live Preview DOM
+    const setNodeText = (id, text) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = text;
+    };
+
+    setNodeText('d-prev-customer-name', name);
+    setNodeText('d-prev-customer-phone', phone);
+    setNodeText('d-prev-car-plate', plate);
+    setNodeText('d-prev-car-model', model);
+    setNodeText('d-prev-service-item', service);
+    setNodeText('d-prev-amount-digits', `NT$ ${amount.toLocaleString()}`);
+    setNodeText('d-prev-amount-chinese', chineseWords);
+    setNodeText('d-prev-receipt-date', dateVal.replace(/-/g, '/'));
+    setNodeText('d-prev-cashier-sign', cashier);
+
+    // Payment method presentation
+    const badgeEl = document.getElementById('d-prev-payment-badge');
+    const transferInfoBox = document.getElementById('d-prev-transfer-info');
+    const transferText = document.getElementById('d-prev-transfer-text');
+
+    if (paymentMethod === '現金') {
+      if (badgeEl) badgeEl.textContent = '💵 門市現金收款 CASH';
+      if (transferInfoBox) transferInfoBox.style.display = 'none';
+    } else {
+      if (badgeEl) badgeEl.textContent = '🏦 銀行匯款 / 轉帳 TRANSFER';
+      if (transferInfoBox) {
+        transferInfoBox.style.display = 'block';
+        if (transferText) {
+          transferText.textContent = transferLast5 ? `轉帳核對資訊：${transferLast5}` : '銀行線上匯款／無摺存款';
+        }
+      }
+    }
+
+    // Terms with bold emphasis on non-refundable contract rule
+    const termsBody = document.getElementById('d-prev-terms-body');
+    if (termsBody) {
+      if (terms.includes('定金收訖後依照合約規定無法隨意退回')) {
+        termsBody.innerHTML = terms.replace(
+          '定金收訖後依照合約規定無法隨意退回',
+          '<strong>定金收訖後依照合約規定無法隨意退回</strong>'
+        );
+      } else if (terms.includes('無法隨意退回')) {
+        termsBody.innerHTML = terms.replace(
+          '無法隨意退回',
+          '<strong>無法隨意退回</strong>'
+        );
+      } else {
+        termsBody.textContent = terms;
+      }
+    }
+
+    // Notes line
+    const notesLine = document.getElementById('d-prev-notes-line');
+    const notesText = document.getElementById('d-prev-notes-text');
+    if (notesLine && notesText) {
+      if (notes) {
+        notesLine.style.display = 'block';
+        notesText.textContent = notes;
+      } else {
+        notesLine.style.display = 'none';
+      }
+    }
+  },
+
+  fillDepositDemoData() {
+    const setVal = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.value = val;
+    };
+
+    setVal('d-customer-name', '郭書豪');
+    setVal('d-customer-phone', '0912-345-678');
+    setVal('d-car-plate', 'EBK-1505');
+    setVal('d-car-model', 'Tesla Model Y');
+    setVal('d-deposit-amount', 20000);
+    setVal('d-service-item', '全車消光透明犀牛皮包膜 (PPF) + 車頂全景隔熱紙');
+    setVal('d-receipt-date', new Date().toISOString().split('T')[0]);
+    setVal('d-created-by', '好室多膜 台北旗艦店');
+    setVal('d-notes', '預計下週二上午10:00進場施工，工期約3天');
+
+    const cashRadio = document.querySelector('input[name="d-payment-type"][value="現金"]');
+    if (cashRadio) {
+      cashRadio.checked = true;
+      this.onDepositPaymentChange();
+    }
+
+    this.updateDepositLivePreview();
+    this.showToast('已填入示範定金收據資料！', 'success');
+  },
+
+  resetDepositForm() {
+    const form = document.getElementById('depositReceiptForm');
+    if (form) form.reset();
+
+    const editIdEl = document.getElementById('d-editing-record-id');
+    if (editIdEl) editIdEl.value = '';
+
+    const quoteIdEl = document.getElementById('d-linked-quote-id');
+    if (quoteIdEl) quoteIdEl.value = '';
+
+    const modeTitle = document.getElementById('d-form-mode-title');
+    if (modeTitle) modeTitle.textContent = '填寫定金收據資訊';
+
+    const dateEl = document.getElementById('d-receipt-date');
+    if (dateEl) dateEl.value = new Date().toISOString().split('T')[0];
+
+    const termsEl = document.getElementById('d-terms-text');
+    if (termsEl) {
+      termsEl.value = '依民法第249條及雙方施工合約協議約定，本定金用於為貴車保留專屬施作檔期與材料備料。除因不可歸責於雙方當事人之事由致不能履行外，定金收訖後依照合約規定無法隨意退回，特此開立收據憑證。';
+    }
+
+    const receiptNoPreview = document.getElementById('d-prev-receipt-no');
+    if (receiptNoPreview) {
+      const todayStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+      receiptNoPreview.textContent = `HW-DEP-${todayStr}-PREVIEW`;
+    }
+
+    this.onDepositPaymentChange();
+    this.updateDepositLivePreview();
+  },
+
+  async saveDepositReceipt() {
+    const name = document.getElementById('d-customer-name')?.value.trim();
+    const phone = document.getElementById('d-customer-phone')?.value.trim();
+    const amount = parseInt(document.getElementById('d-deposit-amount')?.value, 10);
+
+    if (!name) {
+      this.showToast('請填寫客戶姓名', 'warning');
+      document.getElementById('d-customer-name')?.focus();
+      return;
+    }
+    if (!phone) {
+      this.showToast('請填寫客戶聯絡電話', 'warning');
+      document.getElementById('d-customer-phone')?.focus();
+      return;
+    }
+    if (isNaN(amount) || amount <= 0) {
+      this.showToast('請填寫正確的定金金額', 'warning');
+      document.getElementById('d-deposit-amount')?.focus();
+      return;
+    }
+
+    const editingId = document.getElementById('d-editing-record-id')?.value;
+    const radio = document.querySelector('input[name="d-payment-type"]:checked');
+    const paymentMethod = radio ? radio.value : '現金';
+
+    const payload = {
+      quote_id: document.getElementById('d-linked-quote-id')?.value || null,
+      customer_name: name,
+      customer_phone: phone,
+      car_plate: document.getElementById('d-car-plate')?.value.trim() || '',
+      car_model: document.getElementById('d-car-model')?.value.trim() || '',
+      deposit_amount: amount,
+      payment_method: paymentMethod,
+      transfer_last5: document.getElementById('d-transfer-last5')?.value.trim() || '',
+      receipt_date: document.getElementById('d-receipt-date')?.value || new Date().toISOString().split('T')[0],
+      appointment_date: document.getElementById('d-appointment-date')?.value || '',
+      service_item: document.getElementById('d-service-item')?.value.trim() || '',
+      notes: document.getElementById('d-notes')?.value.trim() || '',
+      terms_text: document.getElementById('d-terms-text')?.value.trim() || '',
+      created_by: document.getElementById('d-created-by')?.value.trim() || '好室多膜 台北店'
+    };
+
+    let res;
+    if (editingId) {
+      res = await this.api(`/api/deposits/${editingId}`, {
+        method: 'PUT',
+        body: JSON.stringify(payload)
+      });
+    } else {
+      res = await this.api('/api/deposits', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+    }
+
+    if (res && res.success) {
+      const receiptNo = res.receipt_no || (res.deposit ? res.deposit.receipt_no : '');
+      const setNodeText = (id, text) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = text;
+      };
+      if (receiptNo) setNodeText('d-prev-receipt-no', receiptNo);
+
+      this.showToast(`定金收據【${receiptNo}】儲存成功！`, 'success');
+      this.loadDepositRecordsCount();
+      
+      // Auto offer JPG download
+      setTimeout(() => {
+        if (confirm(`定金收據【${receiptNo}】已儲存！是否立即下載 JPG 圖片傳送給 LINE 客戶？`)) {
+          this.downloadDepositJpg();
+        }
+      }, 350);
+    } else {
+      this.showToast(res?.message || '儲存失敗，請檢查網路連線', 'error');
+    }
+  },
+
+  async downloadDepositJpg() {
+    const target = document.getElementById('deposit-receipt-render');
+    if (!target) return;
+
+    if (!window.html2canvas) {
+      this.showToast('JPG 產製引擎載入中，請稍候重試...', 'warning');
+      return;
+    }
+
+    const name = document.getElementById('d-customer-name')?.value.trim() || '客戶';
+    const plate = document.getElementById('d-car-plate')?.value.trim() || '';
+    const dateVal = document.getElementById('d-receipt-date')?.value || new Date().toISOString().split('T')[0];
+    const filename = `好室多膜_定金收據_${name}_${plate ? plate + '_' : ''}${dateVal}.jpg`;
+
+    this.showToast('正在產生高畫質收據圖片（傳 LINE 首選）...', 'info');
+
+    try {
+      const canvas = await window.html2canvas(target, {
+        scale: 2.5,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false
+      });
+
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      this.showToast(`已成功下載【${filename}】！可直接拖曳至 LINE 傳送給客戶。`, 'success');
+    } catch (err) {
+      console.error('Download deposit JPG error:', err);
+      this.showToast('產生圖片失敗，請嘗試使用列印或截圖功能', 'error');
+    }
+  },
+
+  async downloadDepositPdf() {
+    const target = document.getElementById('deposit-receipt-render');
+    if (!target) return;
+
+    const name = document.getElementById('d-customer-name')?.value.trim() || '客戶';
+    const plate = document.getElementById('d-car-plate')?.value.trim() || '';
+    const dateVal = document.getElementById('d-receipt-date')?.value || new Date().toISOString().split('T')[0];
+    const filename = `好室多膜_定金收據_${name}_${plate ? plate + '_' : ''}${dateVal}.pdf`;
+
+    if (window.html2pdf) {
+      const opt = {
+        margin: [10, 10, 10, 10],
+        filename: filename,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+      this.showToast('正在產生定金收據 PDF...', 'info');
+      try {
+        await window.html2pdf().set(opt).from(target).save();
+        this.showToast(`已成功下載 PDF【${filename}】`, 'success');
+      } catch (err) {
+        console.error('PDF error:', err);
+        window.print();
+      }
+    } else {
+      window.print();
+    }
+  },
+
+  printDepositReceipt() {
+    document.body.classList.add('printing-deposit');
+    window.print();
+    setTimeout(() => {
+      document.body.classList.remove('printing-deposit');
+    }, 1000);
+  },
+
+  copyDepositLineText() {
+    const name = document.getElementById('d-customer-name')?.value.trim() || '貴賓';
+    const phone = document.getElementById('d-customer-phone')?.value.trim() || '';
+    const plate = document.getElementById('d-car-plate')?.value.trim() || '';
+    const model = document.getElementById('d-car-model')?.value.trim() || '';
+    const rawAmt = parseInt(document.getElementById('d-deposit-amount')?.value, 10);
+    const amount = isNaN(rawAmt) ? 0 : rawAmt;
+    const radio = document.querySelector('input[name="d-payment-type"]:checked');
+    const paymentMethod = radio ? radio.value : '現金';
+    const transferLast5 = document.getElementById('d-transfer-last5')?.value.trim() || '';
+    const receiptNo = document.getElementById('d-prev-receipt-no')?.textContent || 'HW-DEP';
+    const dateVal = document.getElementById('d-receipt-date')?.value || new Date().toISOString().split('T')[0];
+    const service = document.getElementById('d-service-item')?.value.trim() || '汽車專業施工';
+    const chineseWords = this.numberToChineseCurrency(amount);
+
+    let payText = paymentMethod === '現金' ? '門市現場現金收訖' : `銀行匯款 / 轉帳 (核對末五碼：${transferLast5 || '已確認入帳'})`;
+
+    const lineMsg = `【好室多膜 HOUSE WRAPPER｜預約定金收訖憑證】
+
+親愛的 ${name} 您好：
+感謝您選擇好室多膜頂級汽車貼膜服務，我們已確認收到您的施作定金，詳細收據資訊如下：
+
+📋 收據單號：${receiptNo}
+💰 定金金額：NT$ ${amount.toLocaleString()} (${chineseWords})
+💳 付款方式：${payText}
+🚗 預約車輛：${model}${plate ? ` (${plate})` : ''}
+🛠️ 預約項目：${service}
+📅 收訖日期：${dateVal.replace(/-/g, '/')}
+
+⚠️ 合約定金特別聲明：
+依民法第249條及雙方施工合約約定，本定金用於為貴車保留專屬施作檔期與材料備料。除因不可歸責於雙方事由致不能履行外，定金收訖後依照合約規定無法隨意退回，餘款將於完工查驗交車時結清。
+
+完整高畫質電子收據圖檔已同步開立，如有任何疑問或需微調施作細節，歡迎隨時與我們聯繫！
+
+好室多膜 台北旗艦店
+門市電話：02-2794-0710
+官方LINE：@housewrapper
+門市地址：台北市內湖區行愛路111號`;
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(lineMsg).then(() => {
+        this.showToast('已複製定金收據 LINE 文字！可直接貼上傳給客戶。', 'success');
+      }).catch(() => {
+        prompt('請手動複製以下訊息傳送至 LINE：', lineMsg);
+      });
+    } else {
+      prompt('請手動複製以下訊息傳送至 LINE：', lineMsg);
+    }
+  },
+
+  async loadDepositRecords(searchQuery = '') {
+    const tbody = document.getElementById('d-records-tbody');
+    const emptyState = document.getElementById('d-empty-state');
+    if (!tbody) return;
+
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 24px; color: var(--text-muted);">載入收據紀錄中...</td></tr>';
+
+    const url = searchQuery ? `/api/deposits?q=${encodeURIComponent(searchQuery)}` : '/api/deposits';
+    const res = await this.api(url);
+
+    if (!res || !res.success) {
+      tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 24px; color: #ef4444;">載入失敗</td></tr>';
+      return;
+    }
+
+    const deposits = res.deposits || [];
+    this.updateDepositCountBadge(deposits.length);
+
+    if (deposits.length === 0) {
+      tbody.innerHTML = '';
+      if (emptyState) emptyState.style.display = 'block';
+      return;
+    }
+
+    if (emptyState) emptyState.style.display = 'none';
+
+    tbody.innerHTML = deposits.map(d => {
+      const amtFormatted = (d.deposit_amount || 0).toLocaleString();
+      const isCash = (d.payment_method || '現金') === '現金';
+      const payBadge = isCash
+        ? '<span class="status-badge" style="background: rgba(34, 197, 94, 0.15); color: #22c55e;">💵 現金</span>'
+        : `<span class="status-badge" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6;">🏦 匯款${d.transfer_last5 ? ` (${d.transfer_last5})` : ''}</span>`;
+
+      return `
+        <tr>
+          <td><strong style="color: #eab308; font-family: monospace;">${d.receipt_no}</strong></td>
+          <td>${(d.receipt_date || '').slice(0, 10)}</td>
+          <td><strong>${d.customer_name}</strong></td>
+          <td>${d.customer_phone}</td>
+          <td>
+            ${d.car_plate ? `<span class="status-badge" style="background: #111827; color: #fff; font-weight: 700;">${d.car_plate}</span>` : '-'}
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">${d.car_model || ''}</div>
+          </td>
+          <td class="text-right"><strong style="color: #ca8a04; font-size: 14px;">NT$ ${amtFormatted}</strong></td>
+          <td class="text-center">${payBadge}</td>
+          <td style="font-size: 12px; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${d.service_item || ''}">${d.service_item || '-'}</td>
+          <td class="text-center">
+            <div style="display: flex; gap: 6px; justify-content: center;">
+              <button class="btn btn-secondary btn-sm" onclick="app.editDepositRecord(${d.id})" title="載入編輯">編輯</button>
+              <button class="btn btn-secondary btn-sm" onclick="app.quickExportDepositJpg(${d.id})" title="下載 JPG 傳 LINE">🖼️ LINE</button>
+              <button class="btn btn-outline btn-sm" style="color: #ef4444; border-color: rgba(239,68,68,0.3);" onclick="app.deleteDepositRecord(${d.id}, '${d.receipt_no}')" title="刪除">✕</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  },
+
+  async loadDepositRecordsCount() {
+    const res = await this.api('/api/deposits');
+    if (res && res.success) {
+      this.updateDepositCountBadge(res.count || (res.deposits ? res.deposits.length : 0));
+    }
+  },
+
+  updateDepositCountBadge(count) {
+    const badge = document.getElementById('d-badge-record-count');
+    if (badge) badge.textContent = count;
+  },
+
+  onDepositSearchInput(val) {
+    clearTimeout(this._depSearchTimer);
+    this._depSearchTimer = setTimeout(() => {
+      this.loadDepositRecords(val.trim());
+    }, 250);
+  },
+
+  clearDepositSearch() {
+    const searchInput = document.getElementById('d-history-search');
+    if (searchInput) searchInput.value = '';
+    this.loadDepositRecords();
+  },
+
+  async editDepositRecord(id) {
+    const res = await this.api(`/api/deposits/${id}`);
+    if (!res || !res.success || !res.deposit) {
+      this.showToast('無法取得定金收據資料', 'error');
+      return;
+    }
+
+    const d = res.deposit;
+    this.switchDepositTab('create');
+
+    const setVal = (elemId, val) => {
+      const el = document.getElementById(elemId);
+      if (el) el.value = val || '';
+    };
+
+    setVal('d-editing-record-id', d.id);
+    setVal('d-linked-quote-id', d.quote_id || '');
+    setVal('d-customer-name', d.customer_name);
+    setVal('d-customer-phone', d.customer_phone);
+    setVal('d-car-plate', d.car_plate);
+    setVal('d-car-model', d.car_model);
+    setVal('d-deposit-amount', d.deposit_amount);
+    setVal('d-transfer-last5', d.transfer_last5);
+    setVal('d-receipt-date', d.receipt_date ? d.receipt_date.slice(0, 10) : '');
+    setVal('d-appointment-date', d.appointment_date ? d.appointment_date.slice(0, 10) : '');
+    setVal('d-service-item', d.service_item);
+    setVal('d-notes', d.notes);
+    setVal('d-created-by', d.created_by);
+    if (d.terms_text) setVal('d-terms-text', d.terms_text);
+
+    const payMethod = d.payment_method || '現金';
+    const radio = document.querySelector(`input[name="d-payment-type"][value="${payMethod}"]`);
+    if (radio) {
+      radio.checked = true;
+      this.onDepositPaymentChange();
+    }
+
+    const modeTitle = document.getElementById('d-form-mode-title');
+    if (modeTitle) modeTitle.textContent = `編輯收據：${d.receipt_no}`;
+
+    const receiptNoPreview = document.getElementById('d-prev-receipt-no');
+    if (receiptNoPreview) receiptNoPreview.textContent = d.receipt_no;
+
+    this.updateDepositLivePreview();
+    this.showToast(`已載入收據【${d.receipt_no}】！`, 'info');
+  },
+
+  async quickExportDepositJpg(id) {
+    await this.editDepositRecord(id);
+    setTimeout(() => {
+      this.downloadDepositJpg();
+    }, 400);
+  },
+
+  async deleteDepositRecord(id, receiptNo) {
+    if (!confirm(`確定要刪除定金收據【${receiptNo}】嗎？\n此動作無法復原！`)) {
+      return;
+    }
+
+    const res = await this.api(`/api/deposits/${id}`, { method: 'DELETE' });
+    if (res && res.success) {
+      this.showToast(`已刪除收據【${receiptNo}】`, 'success');
+      this.loadDepositRecords();
+      this.loadDepositRecordsCount();
+    } else {
+      this.showToast(res?.message || '刪除失敗', 'error');
+    }
+  },
+
+  convertCurrentQuoteToDeposit() {
+    this.closePdfModal();
+    const q = this.previewQuoteData || this.currentQuote;
+    if (!q) {
+      this.showToast('無法取得目前報價單資料', 'error');
+      return;
+    }
+
+    this.navigate('deposit');
+    this.switchDepositTab('create');
+    this.resetDepositForm();
+
+    const setVal = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.value = val || '';
+    };
+
+    setVal('d-linked-quote-id', q.id || '');
+    setVal('d-customer-name', q.customer_name);
+    setVal('d-customer-phone', q.customer_phone);
+    setVal('d-car-plate', q.car_plate);
+    setVal('d-car-model', `${q.car_brand || ''} ${q.car_model || ''}`.trim());
+
+    // Calculate suggested 30% deposit rounded to nearest 1,000
+    const total = q.grand_total || q.final_total || 0;
+    if (total > 0) {
+      const depositSuggest = Math.round((total * 0.3) / 1000) * 1000;
+      setVal('d-deposit-amount', depositSuggest);
+    }
+
+    // Extract service items summary
+    let items = [];
+    if (Array.isArray(q.items)) {
+      items = q.items;
+    } else if (q.items_json) {
+      try { items = JSON.parse(q.items_json); } catch (e) {}
+    }
+
+    if (items.length > 0) {
+      const itemNames = items.slice(0, 3).map(it => it.part_name || it.material_name || '').filter(Boolean);
+      setVal('d-service-item', itemNames.join(' + '));
+    }
+
+    this.updateDepositLivePreview();
+    this.showToast(`已將報價單【${q.quote_number || ''}】客戶資料轉入定金收據！`, 'success');
   }
 };
 

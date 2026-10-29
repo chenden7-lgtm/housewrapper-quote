@@ -152,6 +152,34 @@ function initDatabase() {
       name TEXT NOT NULL,
       sort_order INTEGER NOT NULL DEFAULT 0
     );
+
+    -- Deposit Receipts table (定金收據)
+    CREATE TABLE IF NOT EXISTS deposit_receipts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      receipt_no TEXT UNIQUE NOT NULL,
+      quote_id INTEGER DEFAULT NULL,
+      customer_name TEXT NOT NULL,
+      customer_phone TEXT NOT NULL,
+      car_plate TEXT DEFAULT '',
+      car_model TEXT DEFAULT '',
+      deposit_amount INTEGER NOT NULL DEFAULT 0,
+      payment_method TEXT NOT NULL DEFAULT '現金', -- '現金' | '匯款'
+      transfer_last5 TEXT DEFAULT '', -- 匯款帳號後五碼（若為匯款）
+      receipt_date TEXT NOT NULL,
+      appointment_date TEXT DEFAULT '', -- 預約施工日期（選填）
+      service_item TEXT DEFAULT '', -- 施工項目摘要
+      notes TEXT DEFAULT '',
+      terms_text TEXT DEFAULT '', -- 定金條款
+      created_by TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_deposit_no ON deposit_receipts(receipt_no);
+    CREATE INDEX IF NOT EXISTS idx_deposit_phone ON deposit_receipts(customer_phone);
+    CREATE INDEX IF NOT EXISTS idx_deposit_name ON deposit_receipts(customer_name);
+    CREATE INDEX IF NOT EXISTS idx_deposit_plate ON deposit_receipts(car_plate);
+    CREATE INDEX IF NOT EXISTS idx_deposit_date ON deposit_receipts(receipt_date);
   `);
 
   // Seed users and synchronize accounts
@@ -490,6 +518,34 @@ function initDatabase() {
       );
     }
 
+    // Initial seed: sample deposit receipt
+    const depositCount = db.prepare('SELECT COUNT(*) as count FROM deposit_receipts').get().count;
+    if (depositCount === 0) {
+      db.prepare(`
+        INSERT INTO deposit_receipts (
+          receipt_no, quote_id, customer_name, customer_phone, car_plate, car_model,
+          deposit_amount, payment_method, transfer_last5, receipt_date, appointment_date,
+          service_item, notes, terms_text, created_by, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now', '-1 days'), datetime('now', '-1 days'))
+      `).run(
+        'HW-DEP-20261028-0001',
+        null,
+        '林志偉 先生',
+        '0912-345-678',
+        'BTQ-8899',
+        'Tesla Model Y',
+        30000,
+        '匯款',
+        '88996',
+        '2026-10-28',
+        '2026-11-06',
+        '全車 XPEL 頂級透明犀牛皮施工',
+        '已核對匯款後五碼入帳',
+        '依民法第249條及雙方合約約定，本定金用於為貴車保留專屬施作檔期與材料備料。除因不可歸責於雙方當事人之事由致不能履行外，定金收訖後無法隨意退回，特此開立收據憑證。',
+        '好室多膜 門市總管'
+      );
+    }
+
   console.log("Database initialized and verified successfully at " + DB_PATH);
 }
 
@@ -502,8 +558,18 @@ function generateRecordNo() {
   return `${prefix}-${seq}`;
 }
 
+// Generate new unique deposit receipt number
+function generateDepositNo() {
+  const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const prefix = `HW-DEP-${dateStr}`;
+  const row = db.prepare("SELECT COUNT(*) as count FROM deposit_receipts WHERE receipt_no LIKE ?").get(`${prefix}%`);
+  const seq = (row.count + 1).toString().padStart(4, '0');
+  return `${prefix}-${seq}`;
+}
+
 module.exports = {
   db,
   initDatabase,
-  generateRecordNo
+  generateRecordNo,
+  generateDepositNo
 };
