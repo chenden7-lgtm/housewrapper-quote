@@ -1035,7 +1035,6 @@ const app = {
         </td>
         <td>
           <div style="font-weight: 600; color: #1f2937;">${this.escapeHtml(item.material_name)}</div>
-          <div style="font-size: 11px; color: #4b5563;">官方保固：${item.warranty_years || 5} 年自體修復防護責任</div>
         </td>
         <td class="text-right" style="font-family: var(--font-mono);">NT$ ${this.formatNumber(item.unit_price)}</td>
         <td class="text-center" style="font-family: var(--font-mono);">${item.quantity}</td>
