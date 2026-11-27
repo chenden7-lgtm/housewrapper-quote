@@ -221,16 +221,24 @@ const app = {
   // API Fetch Helper
   // ------------------------------------------------------------------------
   async api(endpoint, options = {}) {
-    const headers = options.headers || {};
+    const opts = { ...options };
+    const headers = { ...(opts.headers || {}) };
     if (this.token) {
       headers['Authorization'] = `Bearer ${this.token}`;
     }
-    if (!(options.body instanceof FormData) && !headers['Content-Type']) {
+
+    if (opts.body !== undefined && opts.body !== null) {
+      if (!(opts.body instanceof FormData) && typeof opts.body === 'object') {
+        opts.body = JSON.stringify(opts.body);
+      }
+    }
+
+    if (!(opts.body instanceof FormData) && !headers['Content-Type']) {
       headers['Content-Type'] = 'application/json';
     }
 
     try {
-      const res = await fetch(endpoint, { ...options, headers });
+      const res = await fetch(endpoint, { ...opts, headers });
       if (res.status === 401) {
         this.logout();
         return null;
@@ -2011,7 +2019,7 @@ const app = {
 
     const res = await this.api('/api/warranty/presets', {
       method: 'POST',
-      body: { type, name }
+      body: JSON.stringify({ type, name })
     });
 
     if (res && res.success) {
@@ -2042,12 +2050,14 @@ const app = {
   },
 
   getWarrantyFormData() {
+    const rawQuoteId = document.getElementById('w-linked-quote-id')?.value;
+    const parsedQuoteId = rawQuoteId ? parseInt(rawQuoteId, 10) : null;
     return {
-      quote_id: document.getElementById('w-linked-quote-id')?.value || null,
+      quote_id: isNaN(parsedQuoteId) ? null : parsedQuoteId,
       customer_name: (document.getElementById('w-customer-name')?.value || '').trim(),
       customer_phone: (document.getElementById('w-customer-phone')?.value || '').trim(),
       car_model: (document.getElementById('w-car-model')?.value || '').trim(),
-      completion_date: (document.getElementById('w-completion-date')?.value || '').trim(),
+      completion_date: (document.getElementById('w-completion-date')?.value || this.formatLocalDate(new Date())).trim(),
       license_plate: (document.getElementById('w-license-plate')?.value || '').toUpperCase().trim(),
       original_color: (document.getElementById('w-original-color')?.value || '').trim(),
       service_brand: (document.getElementById('w-service-brand')?.value || '').trim(),
@@ -2118,12 +2128,12 @@ const app = {
   async saveWarrantyRecord() {
     const data = this.getWarrantyFormData();
     if (!data.customer_name) {
-      alert('請填寫車主姓名');
+      this.showToast('請填寫車主姓名', 'warning');
       document.getElementById('w-customer-name')?.focus();
       return;
     }
     if (!data.license_plate) {
-      alert('請填寫車主車牌');
+      this.showToast('請填寫車主車牌', 'warning');
       document.getElementById('w-license-plate')?.focus();
       return;
     }
@@ -2138,18 +2148,19 @@ const app = {
       if (this.editingWarrantyId) {
         res = await this.api(`/api/warranty/records/${this.editingWarrantyId}`, {
           method: 'PUT',
-          body: data
+          body: JSON.stringify(data)
         });
       } else {
         res = await this.api('/api/warranty/records', {
           method: 'POST',
-          body: data
+          body: JSON.stringify(data)
         });
       }
 
       if (res && res.success) {
         this.showToast(this.editingWarrantyId ? '保固卡資料已更新！' : `保固卡建立成功！編號：${res.record.record_no}`, 'success');
-        this.loadWarrantyRecords();
+        this.resetWarrantyForm();
+        this.switchWarrantyTab('history');
       } else {
         this.showToast(res?.message || '儲存失敗', 'error');
       }

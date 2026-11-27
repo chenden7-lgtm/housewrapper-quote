@@ -553,8 +553,16 @@ function initDatabase() {
 function generateRecordNo() {
   const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
   const prefix = `HW-W-${dateStr}`;
-  const row = db.prepare("SELECT COUNT(*) as count FROM warranty_records WHERE record_no LIKE ?").get(`${prefix}%`);
-  const seq = (row.count + 1).toString().padStart(4, '0');
+  const rows = db.prepare("SELECT record_no FROM warranty_records WHERE record_no LIKE ?").all(`${prefix}%`);
+  let maxSeq = 0;
+  for (const r of rows) {
+    const parts = (r.record_no || '').split('-');
+    const num = parseInt(parts[parts.length - 1], 10);
+    if (!isNaN(num) && num > maxSeq) {
+      maxSeq = num;
+    }
+  }
+  const seq = (maxSeq + 1).toString().padStart(4, '0');
   return `${prefix}-${seq}`;
 }
 
@@ -562,8 +570,16 @@ function generateRecordNo() {
 function generateDepositNo() {
   const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
   const prefix = `HW-DEP-${dateStr}`;
-  const row = db.prepare("SELECT COUNT(*) as count FROM deposit_receipts WHERE receipt_no LIKE ?").get(`${prefix}%`);
-  const seq = (row.count + 1).toString().padStart(4, '0');
+  const rows = db.prepare("SELECT receipt_no FROM deposit_receipts WHERE receipt_no LIKE ?").all(`${prefix}%`);
+  let maxSeq = 0;
+  for (const r of rows) {
+    const parts = (r.receipt_no || '').split('-');
+    const num = parseInt(parts[parts.length - 1], 10);
+    if (!isNaN(num) && num > maxSeq) {
+      maxSeq = num;
+    }
+  }
+  const seq = (maxSeq + 1).toString().padStart(4, '0');
   return `${prefix}-${seq}`;
 }
 

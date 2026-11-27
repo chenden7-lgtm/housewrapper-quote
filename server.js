@@ -886,152 +886,162 @@ app.get('/api/warranty/records/:id', authenticate, (req, res) => {
 });
 
 app.post('/api/warranty/records', authenticate, (req, res) => {
-  const {
-    quote_id,
-    customer_name,
-    customer_phone,
-    car_model,
-    completion_date,
-    license_plate,
-    original_color,
-    service_brand,
-    service_model,
-    notes
-  } = req.body;
+  try {
+    const {
+      quote_id,
+      customer_name,
+      customer_phone,
+      car_model,
+      completion_date,
+      license_plate,
+      original_color,
+      service_brand,
+      service_model,
+      notes
+    } = req.body;
 
-  if (!customer_name || !license_plate) {
-    return res.status(400).json({ success: false, message: '車主姓名與車牌為必填欄位' });
-  }
-
-  const record_no = generateRecordNo();
-  const now = new Date().toISOString();
-  const formattedPlate = (license_plate || '').toUpperCase().trim();
-  const operator = req.user.displayName || req.user.username;
-
-  const insert = db.prepare(`
-    INSERT INTO warranty_records (
-      record_no, quote_id, customer_name, customer_phone, car_model, completion_date,
-      license_plate, original_color, service_brand, service_model, notes,
-      template_version, created_by, created_at, updated_by, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `);
-
-  const result = insert.run(
-    record_no,
-    quote_id || null,
-    customer_name.trim(),
-    (customer_phone || '').trim(),
-    (car_model || '').trim(),
-    (completion_date || '').trim(),
-    formattedPlate,
-    (original_color || '').trim(),
-    (service_brand || '').trim(),
-    (service_model || '').trim(),
-    (notes || '').trim(),
-    'v1.0',
-    operator,
-    now,
-    operator,
-    now
-  );
-
-  const newRecordId = result.lastInsertRowid;
-
-  // Record audit log
-  db.prepare(`
-    INSERT INTO record_logs (record_id, action, changed_by, changed_at, changes_json)
-    VALUES (?, ?, ?, ?, ?)
-  `).run(newRecordId, 'CREATE', operator, now, JSON.stringify({ summary: '建立保固卡' }));
-
-  const createdRecord = db.prepare('SELECT * FROM warranty_records WHERE id = ?').get(newRecordId);
-
-  res.json({ success: true, message: '保固卡已成功建立並儲存', record: createdRecord });
-});
-
-app.put('/api/warranty/records/:id', authenticate, (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const oldRecord = db.prepare('SELECT * FROM warranty_records WHERE id = ?').get(id);
-
-  if (!oldRecord) {
-    return res.status(404).json({ success: false, message: '找不到此保固卡紀錄' });
-  }
-
-  const {
-    customer_name,
-    customer_phone,
-    car_model,
-    completion_date,
-    license_plate,
-    original_color,
-    service_brand,
-    service_model,
-    notes
-  } = req.body;
-
-  const formattedPlate = (license_plate || '').toUpperCase().trim();
-  const now = new Date().toISOString();
-  const operator = req.user.displayName || req.user.username;
-
-  // Track differences for audit log
-  const changes = {};
-  const fields = [
-    ['customer_name', customer_name?.trim()],
-    ['customer_phone', customer_phone?.trim()],
-    ['car_model', car_model?.trim()],
-    ['completion_date', completion_date?.trim()],
-    ['license_plate', formattedPlate],
-    ['original_color', original_color?.trim()],
-    ['service_brand', service_brand?.trim()],
-    ['service_model', service_model?.trim()],
-    ['notes', notes?.trim()]
-  ];
-
-  fields.forEach(([field, newVal]) => {
-    if (newVal !== undefined && newVal !== oldRecord[field]) {
-      changes[field] = { from: oldRecord[field], to: newVal };
+    if (!customer_name || !license_plate) {
+      return res.status(400).json({ success: false, message: '車主姓名與車牌為必填欄位' });
     }
-  });
 
-  const update = db.prepare(`
-    UPDATE warranty_records SET
-      customer_name = ?,
-      customer_phone = ?,
-      car_model = ?,
-      completion_date = ?,
-      license_plate = ?,
-      original_color = ?,
-      service_brand = ?,
-      service_model = ?,
-      notes = ?,
-      updated_by = ?,
-      updated_at = ?
-    WHERE id = ?
-  `);
+    const record_no = generateRecordNo();
+    const now = new Date().toISOString();
+    const formattedPlate = (license_plate || '').toUpperCase().trim();
+    const operator = req.user?.displayName || req.user?.username || '門市人員';
 
-  update.run(
-    customer_name?.trim() ?? oldRecord.customer_name,
-    customer_phone?.trim() ?? oldRecord.customer_phone,
-    car_model?.trim() ?? oldRecord.car_model,
-    completion_date?.trim() ?? oldRecord.completion_date,
-    formattedPlate || oldRecord.license_plate,
-    original_color?.trim() ?? oldRecord.original_color,
-    service_brand?.trim() ?? oldRecord.service_brand,
-    service_model?.trim() ?? oldRecord.service_model,
-    notes?.trim() ?? oldRecord.notes,
-    operator,
-    now,
-    id
-  );
+    const insert = db.prepare(`
+      INSERT INTO warranty_records (
+        record_no, quote_id, customer_name, customer_phone, car_model, completion_date,
+        license_plate, original_color, service_brand, service_model, notes,
+        template_version, created_by, created_at, updated_by, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
 
-  if (Object.keys(changes).length > 0) {
+    const result = insert.run(
+      record_no,
+      quote_id ? parseInt(quote_id, 10) : null,
+      customer_name.trim(),
+      (customer_phone || '').trim(),
+      (car_model || '').trim(),
+      (completion_date || '').trim() || now.slice(0, 10),
+      formattedPlate,
+      (original_color || '').trim(),
+      (service_brand || '').trim(),
+      (service_model || '').trim(),
+      (notes || '').trim(),
+      'v1.0',
+      operator,
+      now,
+      operator,
+      now
+    );
+
+    const newRecordId = result.lastInsertRowid;
+
+    // Record audit log
     db.prepare(`
       INSERT INTO record_logs (record_id, action, changed_by, changed_at, changes_json)
       VALUES (?, ?, ?, ?, ?)
-    `).run(id, 'UPDATE', operator, now, JSON.stringify(changes));
-  }
+    `).run(newRecordId, 'CREATE', operator, now, JSON.stringify({ summary: '建立保固卡' }));
 
-  const updatedRecord = db.prepare('SELECT * FROM warranty_records WHERE id = ?').get(id);
-  res.json({ success: true, message: '保固卡資料已成功更新', record: updatedRecord, changes });
+    const createdRecord = db.prepare('SELECT * FROM warranty_records WHERE id = ?').get(newRecordId);
+
+    res.json({ success: true, message: '保固卡已成功建立並儲存', record: createdRecord });
+  } catch (err) {
+    console.error('Error creating warranty record:', err);
+    res.status(500).json({ success: false, message: '建立保固卡失敗：' + err.message });
+  }
+});
+
+app.put('/api/warranty/records/:id', authenticate, (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const oldRecord = db.prepare('SELECT * FROM warranty_records WHERE id = ?').get(id);
+
+    if (!oldRecord) {
+      return res.status(404).json({ success: false, message: '找不到此保固卡紀錄' });
+    }
+
+    const {
+      customer_name,
+      customer_phone,
+      car_model,
+      completion_date,
+      license_plate,
+      original_color,
+      service_brand,
+      service_model,
+      notes
+    } = req.body;
+
+    const formattedPlate = (license_plate || '').toUpperCase().trim();
+    const now = new Date().toISOString();
+    const operator = req.user?.displayName || req.user?.username || '門市人員';
+
+    // Track differences for audit log
+    const changes = {};
+    const fields = [
+      ['customer_name', customer_name?.trim()],
+      ['customer_phone', customer_phone?.trim()],
+      ['car_model', car_model?.trim()],
+      ['completion_date', completion_date?.trim()],
+      ['license_plate', formattedPlate],
+      ['original_color', original_color?.trim()],
+      ['service_brand', service_brand?.trim()],
+      ['service_model', service_model?.trim()],
+      ['notes', notes?.trim()]
+    ];
+
+    fields.forEach(([field, newVal]) => {
+      if (newVal !== undefined && newVal !== oldRecord[field]) {
+        changes[field] = { from: oldRecord[field], to: newVal };
+      }
+    });
+
+    const update = db.prepare(`
+      UPDATE warranty_records SET
+        customer_name = ?,
+        customer_phone = ?,
+        car_model = ?,
+        completion_date = ?,
+        license_plate = ?,
+        original_color = ?,
+        service_brand = ?,
+        service_model = ?,
+        notes = ?,
+        updated_by = ?,
+        updated_at = ?
+      WHERE id = ?
+    `);
+
+    update.run(
+      customer_name?.trim() ?? oldRecord.customer_name,
+      customer_phone?.trim() ?? oldRecord.customer_phone,
+      car_model?.trim() ?? oldRecord.car_model,
+      completion_date?.trim() ?? oldRecord.completion_date,
+      formattedPlate || oldRecord.license_plate,
+      original_color?.trim() ?? oldRecord.original_color,
+      service_brand?.trim() ?? oldRecord.service_brand,
+      service_model?.trim() ?? oldRecord.service_model,
+      notes?.trim() ?? oldRecord.notes,
+      operator,
+      now,
+      id
+    );
+
+    if (Object.keys(changes).length > 0) {
+      db.prepare(`
+        INSERT INTO record_logs (record_id, action, changed_by, changed_at, changes_json)
+        VALUES (?, ?, ?, ?, ?)
+      `).run(id, 'UPDATE', operator, now, JSON.stringify(changes));
+    }
+
+    const updatedRecord = db.prepare('SELECT * FROM warranty_records WHERE id = ?').get(id);
+    res.json({ success: true, message: '保固卡資料已成功更新', record: updatedRecord, changes });
+  } catch (err) {
+    console.error('Error updating warranty record:', err);
+    res.status(500).json({ success: false, message: '更新保固卡失敗：' + err.message });
+  }
 });
 
 app.delete('/api/warranty/records/:id', authenticate, (req, res) => {
